@@ -1,0 +1,28 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "uvicorn main:app --host 0.0.0.0 --port $PORT",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  }
+}
+```
+
+Save karo: `backend` folder mein → naam: `railway.json`
+
+---
+
+### FILE 3 — `.gitignore`
+```
+backend/downloads/
+downloads/
+__pycache__/
+*.py[cod]
+.env
+venv/
+.venv/
+.DS_Store
