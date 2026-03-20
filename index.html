@@ -62,12 +62,6 @@
   .btn-primary { background: var(--accent); border: none; border-radius: var(--radius-sm); padding: 0 28px; font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; font-family: inherit; transition: all 0.2s; height: 57px; white-space: nowrap; }
   .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 20px var(--accent-glow); }
   
-  /* Quality Chips */
-  .qrow { display: flex; gap: 10px; margin-top: 20px; align-items: center; }
-  .qlbl { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-  .qchip { padding: 6px 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 100px; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-  .qchip.on, .qchip:hover { border-color: var(--accent); color: #fff; background: rgba(99, 102, 241, 0.1); }
-  
   /* Grid & Results */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
   .vcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; transition: all 0.3s; }
@@ -107,9 +101,16 @@
   
   /* Modals & Toasts */
   .mbg { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; }
-  .mbg.on { display: flex; }
-  .modal { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; width: 90%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+  .mbg.on { display: flex; animation: fadeIn 0.2s ease; }
+  .modal { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; width: 90%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); animation: scaleUp 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   
+  .q-btn { width: 100%; text-align: left; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+  .q-btn:hover { background: var(--bg-hover); border-color: var(--accent); transform: translateX(4px); }
+  .q-btn-title { font-weight: 600; color: #fff; font-size: 15px; }
+  .q-btn-desc { color: var(--text-muted); font-size: 13px; font-weight: 500; }
+
   .toast { position: fixed; bottom: 30px; right: 30px; z-index: 999; width: 350px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); display: none; }
   .toast.on { display: block; animation: slideIn 0.3s ease; }
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -161,12 +162,6 @@
         </div>
         <button class="btn-primary" onclick="ytGo()">Search</button>
       </div>
-      <div class="qrow">
-        <span class="qlbl">Video Quality:</span>
-        <div class="qchip on" onclick="setQ('best',this)">Highest</div>
-        <div class="qchip" onclick="setQ('1080',this)">1080p</div>
-        <div class="qchip" onclick="setQ('720',this)">720p</div>
-      </div>
     </div>
     
     <div id="yterr" style="color: var(--red); font-size: 14px; margin-bottom: 20px; text-align: center;"></div>
@@ -190,8 +185,8 @@
           <span id="ich"></span> • <span id="ivw"></span> • <span id="idur"></span>
         </div>
         <div style="display: flex; gap: 12px;">
-          <button class="btn-primary" style="flex:1" onclick="dlNow('video')">⬇ Download MP4</button>
-          <button class="btn-outline" style="flex:1" onclick="dlNow('audio')">🎵 Download MP3</button>
+          <button class="btn-primary" style="flex:1" onclick="openQModal('video', curURL, document.getElementById('ititl').textContent, document.getElementById('iimg').src)">⬇ Download MP4</button>
+          <button class="btn-outline" style="flex:1" onclick="openQModal('audio', curURL, document.getElementById('ititl').textContent, document.getElementById('iimg').src)">🎵 Download MP3</button>
         </div>
       </div>
     </div>
@@ -236,6 +231,43 @@
   </div>
 </div>
 
+<div class="mbg" id="qbg">
+  <div class="modal">
+    <h3 style="font-size: 20px; margin-bottom: 6px;" id="qModalTitle">Select Quality</h3>
+    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="qModalDesc">Song/Video Title</p>
+    
+    <div id="qOptionsVideo" style="display:none; flex-direction:column;">
+      <button class="q-btn" onclick="confirmDl('best')">
+        <span class="q-btn-title">Highest Quality</span>
+        <span class="q-btn-desc" style="color: var(--accent);">4K / Best</span>
+      </button>
+      <button class="q-btn" onclick="confirmDl('1080')">
+        <span class="q-btn-title">High Definition</span>
+        <span class="q-btn-desc">1080p</span>
+      </button>
+      <button class="q-btn" onclick="confirmDl('720')">
+        <span class="q-btn-title">Standard HD</span>
+        <span class="q-btn-desc">720p</span>
+      </button>
+      <button class="q-btn" onclick="confirmDl('480')">
+        <span class="q-btn-title">Data Saver</span>
+        <span class="q-btn-desc">480p</span>
+      </button>
+    </div>
+
+    <div id="qOptionsAudio" style="display:none; flex-direction:column;">
+      <button class="q-btn" style="border-color: rgba(245, 158, 11, 0.3);" onclick="confirmDl('best')" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(245, 158, 11, 0.3)'">
+        <span class="q-btn-title" style="color: var(--gold2);">Premium Audio</span>
+        <span class="q-btn-desc">MP3 (192kbps)</span>
+      </button>
+    </div>
+
+    <div style="margin-top: 20px; text-align: right;">
+      <button class="btn-outline" style="border:none;" onclick="closeQModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">
   <div style="font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 8px;">
     <span id="ttxt">Processing...</span>
@@ -247,7 +279,8 @@
 
 <script>
 let API = localStorage.getItem("mv_api") || "http://localhost:8000";
-let curURL = "", igURL = "", selQ = "best";
+let curURL = "", igURL = "";
+let pendingTask = null; // Holds download data while quality modal is open
 
 // Initialize UI
 document.getElementById("api-url").textContent = API;
@@ -267,6 +300,7 @@ async function checkAPI() {
   }
 }
 
+// Settings Modal
 function openM() { document.getElementById("mbg").classList.add("on"); }
 function closeM() { document.getElementById("mbg").classList.remove("on"); }
 async function saveAPI() {
@@ -277,6 +311,39 @@ async function saveAPI() {
   closeM(); checkAPI();
 }
 
+// Quality Modal
+function openQModal(type, url, title, thumb) {
+  pendingTask = { type, url, title, thumb };
+  document.getElementById("qbg").classList.add("on");
+  document.getElementById("qModalDesc").textContent = title;
+  
+  if (type === 'video') {
+    document.getElementById("qModalTitle").textContent = "Select Video Quality";
+    document.getElementById("qOptionsVideo").style.display = "flex";
+    document.getElementById("qOptionsAudio").style.display = "none";
+  } else {
+    document.getElementById("qModalTitle").textContent = "Download Audio";
+    document.getElementById("qOptionsVideo").style.display = "none";
+    document.getElementById("qOptionsAudio").style.display = "flex";
+  }
+}
+
+function closeQModal() {
+  document.getElementById("qbg").classList.remove("on");
+  pendingTask = null;
+}
+
+async function confirmDl(quality) {
+  if(!pendingTask) return;
+  const { type, url, title, thumb } = pendingTask;
+  closeQModal(); // Close popup
+  
+  const ep = type === "video" ? "/api/download/video" : "/api/download/audio";
+  const safeName = title.replace(/[\\/:*?"<>|]/g, "").trim() + (type === "video" ? ".mp4" : ".mp3");
+  
+  await doDL(ep, {url: url, format: type, quality: quality}, safeName, {title: title, thumb: thumb, format: type});
+}
+
 function swTab(t) {
   ["yt","ig","hi"].forEach(x => {
     document.getElementById("p"+x).style.display = (x===t) ? "block" : "none";
@@ -285,43 +352,23 @@ function swTab(t) {
   if(t === 'hi') renderHistory();
 }
 
-function setQ(q, el) {
-  selQ = q;
-  document.querySelectorAll(".qchip").forEach(c=>c.classList.remove("on"));
-  el.classList.add("on");
-}
-
 function isYT(s) { return s.includes("youtube.com/") || s.includes("youtu.be/"); }
 
-  // Input box ko ek click mein clear karne ke liye (Works for both YouTube & Instagram)
 function clearSearch(inputId) {
   const input = document.getElementById(inputId);
   input.value = "";
-  input.focus(); // Cursor wapas box me laane ke liye
-  
-  // Agar YouTube ka box clear kiya hai, toh result bhi hide kar do
-  if (inputId === 'yti') {
-    handleYTInput(); 
-  }
+  input.focus(); 
+  if (inputId === 'yti') { handleYTInput(); }
 }
 
-// Auto-detect & clear old results
 function handleYTInput() {
   const v = document.getElementById("yti").value.trim();
-  
-  // Naya link type/paste karte hi purana result turant hide kar do
   document.getElementById("infop").classList.remove("on");
   document.getElementById("resgrid").innerHTML = "";
   document.getElementById("yterr").textContent = "";
   
-  // Agar box khali ho gaya, toh wapas "Ready to Download" dikhao
-  if (v === "") {
-    document.getElementById("ytem").classList.add("on");
-  } 
-  // Agar valid YouTube link paste kiya hai, toh automatic search start kar do
-  else if (isYT(v)) {
-    ytGo();
-  }
+  if (v === "") { document.getElementById("ytem").classList.add("on"); } 
+  else if (isYT(v)) { ytGo(); }
 }
 
 async function ytGo() {
@@ -363,7 +410,6 @@ async function searchYT(q) {
     
     const g = document.getElementById("resgrid");
     d.results.forEach((v) => {
-      // Escape quotes for inline onclick handler
       const safeTitle = v.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
       g.innerHTML += `
       <div class="vcard">
@@ -372,35 +418,14 @@ async function searchYT(q) {
           <div class="ctitle">${v.title}</div>
           <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">${v.channel} • ${v.views} views</div>
           <div class="cacts">
-            <button class="bact mp4" onclick="dlCard('${v.url}', 'video', '${safeTitle}', '${v.thumbnail}')">MP4</button>
-            <button class="bact mp3" onclick="dlCard('${v.url}', 'audio', '${safeTitle}', '${v.thumbnail}')">MP3</button>
+            <button class="bact mp4" onclick="openQModal('video', '${v.url}', '${safeTitle}', '${v.thumbnail}')">MP4</button>
+            <button class="bact mp3" onclick="openQModal('audio', '${v.url}', '${safeTitle}', '${v.thumbnail}')">MP3</button>
           </div>
         </div>
       </div>`;
     });
   } catch(e) { document.getElementById("yterr").textContent = e.message; } 
   finally { document.getElementById("ytld").classList.remove("on"); }
-}
-
-async function dlNow(type) {
-  if (!curURL) return;
-  const t = document.getElementById("ititl").textContent;
-  const th = document.getElementById("iimg").src;
-  const ep = type==="video" ? "/api/download/video" : "/api/download/audio";
-  
-  // Real name generate karo aur illegal characters hatao
-  const safeName = t.replace(/[\\/:*?"<>|]/g, "").trim() + (type==="video" ? ".mp4" : ".mp3");
-  
-  await doDL(ep, {url:curURL, format:type, quality:selQ}, safeName, {title: t, thumb: th, format: type});
-}
-
-async function dlCard(url, type, title, thumb) {
-  const ep = type==="video" ? "/api/download/video" : "/api/download/audio";
-  
-  // Real name generate karo
-  const safeName = title.replace(/[\\/:*?"<>|]/g, "").trim() + (type==="video" ? ".mp4" : ".mp3");
-  
-  await doDL(ep, {url:url, format:type, quality:selQ}, safeName, {title: title, thumb: thumb, format: type});
 }
 
 async function igDl() {
@@ -430,9 +455,7 @@ async function doDL(ep, body, fname, meta) {
     document.getElementById("ttxt").textContent = "Download Complete! ✓";
     document.getElementById("pfill").style.background = "var(--green)";
     
-    // Save to History
     saveToHistory(meta.title, body.url, meta.format, meta.thumb);
-    
     setTimeout(() => { document.getElementById("toast").classList.remove("on"); }, 3000);
   } catch(e) { 
     document.getElementById("ttxt").textContent = "Error occurred: " + e.message;
@@ -445,7 +468,7 @@ async function doDL(ep, body, fname, meta) {
 function saveToHistory(title, url, format, thumb) {
   let hist = JSON.parse(localStorage.getItem("mv_history_v1") || "[]");
   hist.unshift({ title, url, format, thumb, date: new Date().toLocaleDateString() });
-  if(hist.length > 30) hist.pop(); // Keep only last 30
+  if(hist.length > 30) hist.pop();
   localStorage.setItem("mv_history_v1", JSON.stringify(hist));
 }
 
