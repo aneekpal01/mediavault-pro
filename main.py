@@ -126,38 +126,43 @@ async def get_video_info(url: str):
 # ── DOWNLOAD VIDEO (MP4) ──────────────────────────────
 @app.post("/api/download/video")
 async def download_video(req: DownloadRequest):
-    """Video download karo MP4 format mein"""
+    """Video download karo aur audio ke sath merge karo"""
     file_id = str(uuid.uuid4())
-    output_path = DOWNLOAD_DIR / f"{file_id}.mp4"
+    output_template = DOWNLOAD_DIR / f"{file_id}.%(ext)s"
 
-    quality_map = {
-        "best": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-        "1080": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]",
-        "720":  "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]",
-        "480":  "bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[height<=480][ext=mp4]",
-    }
+  
+    if req.quality == "best":
+        format_str = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
+    else:
+        # Agar exact height na mile, toh usse chota best utha lega, aur crash nahi hoga
+        format_str = f"bestvideo[height<={req.quality}][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<={req.quality}]+bestaudio/best[ext=mp4]/best"
 
     ydl_opts = {
-        "cookiefile": "cookies.txt",
-        "format": quality_map.get(req.quality, quality_map["best"]),
-        "outtmpl": str(output_path),
+        "cookiefile": "cookies.txt",  # Tumhara bot bypass wala cookie!
+        "format": format_str,
+        "outtmpl": str(output_template),
         "quiet": True,
         "no_warnings": True,
-        "merge_output_format": "mp4",
+        "merge_output_format": "mp4", # Ensure karega ki final file strictly MP4 ho
     }
 
     try:
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: _do_download(req.url, ydl_opts))
 
-        if not output_path.exists():
-            raise HTTPException(status_code=500, detail="Download failed — file not created")
+        final_path = DOWNLOAD_DIR / f"{file_id}.mp4"
+        if not final_path.exists():
+            # yt-dlp sometimes saves as .mkv if merge fails, check for it
+            mkv_path = DOWNLOAD_DIR / f"{file_id}.mkv"
+            if mkv_path.exists():
+                final_path = mkv_path
+            else:
+                raise HTTPException(status_code=500, detail="Video conversion failed")
 
         return FileResponse(
-            path=str(output_path),
+            path=str(final_path),
             filename=f"mediavault_{file_id[:8]}.mp4",
             media_type="video/mp4",
-            background=BackgroundTasks(),
         )
 
     except Exception as e:
