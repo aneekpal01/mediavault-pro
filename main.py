@@ -48,6 +48,7 @@ async def search_youtube(req: SearchRequest):
         "extract_flat": True,
         "default_search": f"ytsearch{req.max_results}",
         "skip_download": True,
+        "format": "best",  # 🛡️ FIX: Taaki music tracks aur alag videos pe crash na ho
     }
 
     try:
@@ -85,6 +86,7 @@ async def get_video_info(url: str):
         "quiet": True,
         "no_warnings": True,
         "skip_download": True,
+        "format": "best",  # 🛡️ FIX: Music videos/Shorts ko easily bypass karne ke liye
     }
 
     try:
@@ -138,12 +140,12 @@ async def download_video(req: DownloadRequest):
         format_str = f"bestvideo[height<={req.quality}][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<={req.quality}]+bestaudio/best[ext=mp4]/best"
 
     ydl_opts = {
-        "cookiefile": "cookies.txt",  # Tumhara bot bypass wala cookie!
+        "cookiefile": "cookies.txt",  
         "format": format_str,
         "outtmpl": str(output_template),
         "quiet": True,
         "no_warnings": True,
-        "merge_output_format": "mp4", # Ensure karega ki final file strictly MP4 ho
+        "merge_output_format": "mp4", 
     }
 
     try:
@@ -176,7 +178,6 @@ async def download_audio(req: DownloadRequest):
     file_id = str(uuid.uuid4())
     output_template = DOWNLOAD_DIR / f"{file_id}.%(ext)s"
 
-    # Frontend se jo quality aayi hai (m4a ya mp3) usko check karo
     audio_ext = "m4a" if req.quality == "m4a" else "mp3"
 
     ydl_opts = {
@@ -185,7 +186,7 @@ async def download_audio(req: DownloadRequest):
         "outtmpl": str(output_template),
         "quiet": True,
         "no_warnings": True,
-        "writethumbnail": True,  # Thumbnail DP ke liye
+        "writethumbnail": True,  
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
@@ -201,7 +202,6 @@ async def download_audio(req: DownloadRequest):
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: _do_download(req.url, ydl_opts))
 
-        # Check karo final file kis naam se save hui
         final_path = DOWNLOAD_DIR / f"{file_id}.{audio_ext}"
         if not final_path.exists():
             raise HTTPException(status_code=500, detail=f"{audio_ext.upper()} conversion failed")
