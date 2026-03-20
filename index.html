@@ -3,225 +3,198 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MediaVault Pro</title>
+<title>MediaVault Pro | Premium</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:#0a0a0f;--bg2:#111118;--bg3:#16161f;--bg4:#1c1c28;
-    --accent:#7c5cfc;--accent2:#a78bfa;--accent3:#c4b5fd;
-    --gold:#f59e0b;--gold2:#fcd34d;--green:#10b981;--red:#ef4444;
-    --text:#f1f0ff;--text2:#a09cc4;--text3:#6b6892;
-    --border:rgba(124,92,252,0.15);--border2:rgba(124,92,252,0.3);
-    --glass:rgba(124,92,252,0.06);--radius:16px;--radius-sm:10px;
+    --bg: #09090b; --bg-card: rgba(255, 255, 255, 0.03); 
+    --bg-hover: rgba(255, 255, 255, 0.06);
+    --accent: #6366f1; --accent-hover: #4f46e5; --accent-glow: rgba(99, 102, 241, 0.2);
+    --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.08);
+    --green: #10b981; --red: #ef4444; --gold: #f59e0b;
+    --radius: 20px; --radius-sm: 12px;
   }
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-  .amb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
-  .amb1{width:600px;height:600px;background:rgba(124,92,252,0.08);top:-200px;left:-100px;}
-  .amb2{width:400px;height:400px;background:rgba(245,158,11,0.05);bottom:-100px;right:-100px;}
-  .app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px;}
-  header{display:flex;align-items:center;justify-content:space-between;padding:28px 0 40px;border-bottom:1px solid var(--border);margin-bottom:44px;}
-  .logo{display:flex;align-items:center;gap:12px;}
-  .logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),#5b21b6);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
-  .logo-text{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.5px;}
-  .logo-badge{font-size:10px;font-weight:700;background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-left:4px;letter-spacing:1.5px;}
-  .pills{display:flex;gap:8px;}
-  .pill{display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border2);border-radius:100px;font-size:12px;font-weight:500;color:var(--text2);background:var(--glass);}
-  .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
-  .hero{text-align:center;margin-bottom:52px;}
-  .hero-tag{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;background:rgba(124,92,252,0.1);border:1px solid var(--border2);border-radius:100px;font-size:12px;font-weight:500;color:var(--accent3);letter-spacing:0.5px;margin-bottom:24px;}
-  h1{font-family:'Syne',sans-serif;font-size:clamp(36px,6vw,64px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:18px;}
-  h1 span{background:linear-gradient(135deg,var(--accent2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  .hero-sub{font-size:17px;color:var(--text2);font-weight:300;max-width:520px;margin:0 auto;line-height:1.7;}
-  .api-banner{background:rgba(124,92,252,0.07);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-  .api-left{display:flex;align-items:center;gap:12px;}
-  .api-indicator{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0;transition:all 0.3s;}
-  .api-indicator.off{background:var(--red);box-shadow:0 0 8px var(--red);}
-  .api-indicator.checking{background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 1s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-  .api-status{font-size:13px;font-weight:500;}
-  .api-url{font-size:11px;color:var(--text3);font-family:monospace;margin-top:2px;}
-  .btn-cfg{background:none;border:1px solid var(--border);color:var(--text3);font-size:12px;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all 0.2s;}
-  .btn-cfg:hover{border-color:var(--accent);color:var(--accent3);}
-  .tabs{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:6px;gap:4px;margin-bottom:28px;}
-  .tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:11px;font-size:14px;font-weight:500;color:var(--text3);cursor:pointer;transition:all 0.25s;border:none;background:none;font-family:inherit;}
-  .tab.active{background:var(--bg4);border:1px solid var(--border2);color:var(--text);box-shadow:0 2px 20px rgba(124,92,252,0.15);}
-  .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:28px;transition:border-color 0.3s;}
-  .card:focus-within{border-color:var(--border2);}
-  .row{display:flex;gap:12px;align-items:center;}
-  .inp-wrap{flex:1;position:relative;}
-  .inp-pre{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none;z-index:1;}
-  .inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 16px 16px 50px;font-size:15px;color:var(--text);font-family:inherit;outline:none;transition:border-color 0.25s,box-shadow 0.25s;}
-  .inp::placeholder{color:var(--text3);}
-  .inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,252,0.12);}
-  .btn-go{display:flex;align-items:center;gap:8px;padding:16px 26px;background:linear-gradient(135deg,var(--accent),#5b21b6);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;transition:transform 0.15s,box-shadow 0.2s;white-space:nowrap;}
-  .btn-go:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(124,92,252,0.35);}
-  .btn-go:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-  .qrow{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;align-items:center;}
-  .qlbl{font-size:12px;color:var(--text3);}
-  .qchip{padding:6px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:100px;font-size:12px;color:var(--text2);cursor:pointer;transition:all 0.2s;user-select:none;}
-  .qchip.on,.qchip:hover{border-color:var(--accent);color:var(--accent3);background:rgba(124,92,252,0.08);}
-  .res-lbl{font-size:12px;font-weight:600;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:16px;display:none;}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:32px;}
-  .vcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color 0.25s,transform 0.2s,box-shadow 0.25s;animation:up 0.4s ease both;}
-  .vcard:hover{border-color:var(--border2);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.5);}
-  @keyframes up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-  .tw{position:relative;aspect-ratio:16/9;background:var(--bg3);overflow:hidden;}
-  .tw img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;}
-  .vcard:hover .tw img{transform:scale(1.04);}
-  .tov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent 60%);display:flex;align-items:flex-end;padding:12px;}
-  .dbadge{background:rgba(0,0,0,0.85);color:#fff;font-size:11px;font-weight:600;padding:3px 7px;border-radius:6px;}
-  .pb{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);opacity:0;width:48px;height:48px;background:rgba(255,255,255,0.95);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;transition:opacity 0.2s,transform 0.2s;}
-  .vcard:hover .pb{opacity:1;transform:translate(-50%,-50%) scale(1);}
-  .cbody{padding:14px 16px 16px;}
-  .ctitle{font-size:14px;font-weight:500;line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-  .cmeta{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:12px;}
-  .cacts{display:flex;gap:6px;padding-top:12px;border-top:1px solid var(--border);}
-  .bact{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.2s;border:1px solid var(--border);background:var(--bg3);color:var(--text2);}
-  .bact:hover{background:var(--bg4);color:var(--text);}
-  .bact.mp4:hover{border-color:rgba(124,92,252,0.5);color:var(--accent3);}
-  .bact.mp3:hover{border-color:rgba(245,158,11,0.5);color:var(--gold2);}
-  .ipanel{display:none;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;margin-bottom:28px;animation:up 0.35s ease;box-shadow:0 30px 80px rgba(0,0,0,0.5);}
-  .ipanel.on{display:block;}
-  .ithumb{aspect-ratio:16/9;background:#000;overflow:hidden;}
-  .ithumb img{width:100%;height:100%;object-fit:cover;}
-  .ibody{padding:24px;}
-  .ititle{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;line-height:1.3;margin-bottom:12px;}
-  .imeta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
-  .imeta span{font-size:13px;color:var(--text3);}
-  .dlgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .dlbtn{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;border:1px solid;width:100%;}
-  .dlbtn.mp4{background:rgba(124,92,252,0.1);border-color:var(--accent);color:var(--accent3);}
-  .dlbtn.mp3{background:rgba(245,158,11,0.08);border-color:var(--gold);color:var(--gold2);}
-  .dlbtn:hover{transform:translateY(-2px);}
-  .dlbtn.mp4:hover{background:rgba(124,92,252,0.2);box-shadow:0 8px 24px rgba(124,92,252,0.2);}
-  .dlbtn.mp3:hover{background:rgba(245,158,11,0.15);box-shadow:0 8px 24px rgba(245,158,11,0.15);}
-  .dlbtn:disabled{opacity:0.4;cursor:not-allowed;transform:none !important;}
-  .spin{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:rot 0.9s linear infinite;margin:0 auto 20px;}
-  .spin-sm{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:rot 0.8s linear infinite;}
-  @keyframes rot{to{transform:rotate(360deg);}}
-  .st{text-align:center;padding:60px 24px;display:none;}
-  .st.on{display:block;}
-  .st-icon{font-size:48px;margin-bottom:16px;opacity:0.4;}
-  .st-txt{color:var(--text2);font-size:16px;}
-  .st-sub{color:var(--text3);font-size:13px;margin-top:6px;}
-  .errbox{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-sm);padding:14px 18px;color:#fca5a5;font-size:13px;margin-bottom:16px;display:none;}
-  .errbox.on{display:block;}
-  .igcard{display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:28px;animation:up 0.35s ease;}
-  .igcard.on{display:block;}
-  .igh{display:flex;align-items:center;gap:14px;padding:20px 24px;border-bottom:1px solid var(--border);}
-  .igav{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);display:flex;align-items:center;justify-content:center;font-size:22px;}
-  .igb{padding:24px;}
-  .igdlbtn{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;font-family:inherit;width:100%;}
-  .igdlbtn:hover{border-color:var(--border2);background:var(--bg4);}
-  .igdlbtn:disabled{opacity:0.4;cursor:not-allowed;}
-  .badge-hd{background:rgba(16,185,129,0.15);color:var(--green);font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;}
-  .toast{position:fixed;bottom:32px;right:32px;z-index:999;width:340px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;box-shadow:0 24px 60px rgba(0,0,0,0.6);display:none;animation:sin 0.35s cubic-bezier(0.34,1.56,0.64,1);}
-  .toast.on{display:block;}
-  @keyframes sin{from{transform:translateX(120%);opacity:0;}to{transform:translateX(0);opacity:1;}}
-  .ttop{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-  .ttitle{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
-  .tx{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;}
-  .tfile{font-size:12px;color:var(--text3);margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .pbar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:8px;}
-  .pfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;width:0%;transition:width 0.4s ease;}
-  .tfoot{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);}
-  .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:48px;padding-top:40px;border-top:1px solid var(--border);}
-  .feat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color 0.25s;}
-  .feat:hover{border-color:var(--border2);}
-  .fi{font-size:24px;margin-bottom:12px;display:block;}
-  .ft{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:6px;}
-  .fd{font-size:13px;color:var(--text3);line-height:1.6;}
-  .mbg{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;display:none;align-items:center;justify-content:center;}
-  .mbg.on{display:flex;}
-  .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:28px;width:90%;max-width:500px;animation:up 0.3s ease;}
-  .modal h3{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;}
-  .modal p{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.7;}
-  .minp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-size:13px;color:var(--text);font-family:monospace;outline:none;margin-bottom:16px;transition:border-color 0.2s;}
-  .minp:focus{border-color:var(--accent);}
-  .mbtns{display:flex;gap:10px;justify-content:flex-end;}
-  .bsec{padding:10px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s;}
-  .bsec:hover{border-color:var(--border2);color:var(--text);}
-  @media(max-width:640px){.grid{grid-template-columns:1fr;}.feats{grid-template-columns:1fr;}.pills{display:none;}.toast{width:calc(100vw - 32px);right:16px;bottom:16px;}h1{font-size:36px;}header{flex-direction:column;gap:16px;}.dlgrid{grid-template-columns:1fr;}}
+  
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+  
+  /* Premium Ambient Glow */
+  .glow { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; opacity: 0.5; }
+  .glow-1 { width: 500px; height: 500px; background: rgba(99, 102, 241, 0.15); top: -150px; left: -100px; }
+  .glow-2 { width: 400px; height: 400px; background: rgba(244, 63, 94, 0.1); bottom: -100px; right: -50px; }
+  
+  .app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+  
+  header { display: flex; align-items: center; justify-content: space-between; padding: 40px 0; border-bottom: 1px solid var(--border); margin-bottom: 50px; }
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), #ec4899); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 8px 20px rgba(236, 72, 153, 0.2); }
+  .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  
+  .hero { text-align: center; margin-bottom: 50px; }
+  h1 { font-size: clamp(40px, 6vw, 64px); font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 20px; }
+  h1 span { background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-sub { font-size: 16px; color: var(--text-muted); font-weight: 400; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+  
+  .api-banner { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 24px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .api-left { display: flex; align-items: center; gap: 12px; }
+  .api-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 10px var(--gold); animation: pulse 1s infinite; }
+  .api-dot.on { background: var(--green); box-shadow: 0 0 10px var(--green); animation: none; }
+  .api-dot.off { background: var(--red); box-shadow: 0 0 10px var(--red); animation: none; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .api-status { font-size: 14px; font-weight: 600; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+  .btn-outline:hover { background: var(--bg-hover); border-color: var(--accent); }
+  
+  /* Tabs */
+  .tabs { display: flex; background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px; gap: 6px; margin-bottom: 30px; }
+  .tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.3s; border: none; background: transparent; font-family: inherit; }
+  .tab.active { background: var(--accent); color: #fff; box-shadow: 0 4px 15px var(--accent-glow); }
+  
+  /* Glass Cards */
+  .card { background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 30px; transition: border-color 0.3s; }
+  .card:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  
+  .row { display: flex; gap: 12px; align-items: center; }
+  .inp-wrap { flex: 1; position: relative; }
+  .inp { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px 20px; font-size: 15px; color: var(--text-main); font-family: inherit; outline: none; transition: all 0.2s; }
+  .inp:focus { border-color: var(--accent); background: rgba(0,0,0,0.4); }
+  .btn-primary { background: var(--accent); border: none; border-radius: var(--radius-sm); padding: 0 28px; font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; font-family: inherit; transition: all 0.2s; height: 57px; white-space: nowrap; }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 20px var(--accent-glow); }
+  
+  /* Quality Chips */
+  .qrow { display: flex; gap: 10px; margin-top: 20px; align-items: center; }
+  .qlbl { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  .qchip { padding: 6px 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 100px; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+  .qchip.on, .qchip:hover { border-color: var(--accent); color: #fff; background: rgba(99, 102, 241, 0.1); }
+  
+  /* Grid & Results */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+  .vcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; transition: all 0.3s; }
+  .vcard:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.15); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+  .tw { position: relative; aspect-ratio: 16/9; background: #000; overflow: hidden; }
+  .tw img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+  .vcard:hover .tw img { transform: scale(1.05); }
+  .cbody { padding: 16px; }
+  .ctitle { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+  .cacts { display: flex; gap: 8px; margin-top: 16px; }
+  .bact { flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: var(--text-main); transition: all 0.2s; }
+  .bact:hover { background: var(--bg-hover); }
+  .bact.mp4:hover { border-color: var(--accent); color: #a5b4fc; }
+  
+  /* History Item */
+  .h-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; transition: all 0.2s; }
+  .h-item:hover { background: var(--bg-hover); border-color: rgba(255,255,255,0.1); }
+  .h-thumb { width: 100px; height: 56px; border-radius: 6px; object-fit: cover; background: #000; }
+  .h-info { flex: 1; overflow: hidden; }
+  .h-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .h-meta { font-size: 12px; color: var(--text-muted); }
+  .h-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: rgba(255,255,255,0.1); margin-right: 8px; }
+
+  /* States */
+  .st { text-align: center; padding: 60px 20px; display: none; }
+  .st.on { display: block; }
+  .spin { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: rot 0.8s linear infinite; margin: 0 auto 20px; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+  
+  /* Info Panel (Single Video) */
+  .ipanel { display: none; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 30px; }
+  .ipanel.on { display: block; animation: fadeUp 0.4s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .ithumb { aspect-ratio: 21/9; background: #000; overflow: hidden; }
+  .ithumb img { width: 100%; height: 100%; object-fit: cover; }
+  .ibody { padding: 30px; }
+  
+  /* Modals & Toasts */
+  .mbg { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; }
+  .mbg.on { display: flex; }
+  .modal { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; width: 90%; max-width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+  
+  .toast { position: fixed; bottom: 30px; right: 30px; z-index: 999; width: 350px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); display: none; }
+  .toast.on { display: block; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .pbar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin: 12px 0; }
+  .pfill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
 </style>
 </head>
 <body>
-<div class="amb amb1"></div>
-<div class="amb amb2"></div>
-<div class="app">
 
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<div class="app">
   <header>
     <div class="logo">
       <div class="logo-icon">⬇</div>
-      <div class="logo-text">MediaVault <span class="logo-badge">PRO</span></div>
-    </div>
-    <div class="pills">
-      <div class="pill"><span class="dot"></span> Live</div>
-      <div class="pill">🔒 Private</div>
-      <div class="pill">⚡ yt-dlp Powered</div>
+      <div class="logo-text">MediaVault <span style="font-weight: 400; color: var(--text-muted)">PRO</span></div>
     </div>
   </header>
 
   <div class="hero">
-    <div class="hero-tag">✦ Real Downloads · FastAPI + yt-dlp · Railway Hosted</div>
-    <h1>Download <span>Anything,</span><br>Anywhere.</h1>
-    <p class="hero-sub">YouTube videos up to 4K, MP3 at 192kbps, Instagram Reels — powered by your Railway backend.</p>
+    <h1>Premium Media<br><span>Downloader.</span></h1>
+    <p class="hero-sub">Fast, secure, and powered by your personal Railway backend. Download from YouTube and Instagram directly to your device.</p>
   </div>
 
   <div class="api-banner">
     <div class="api-left">
-      <div class="api-indicator checking" id="api-dot"></div>
+      <div class="api-dot" id="api-dot"></div>
       <div>
-        <div class="api-status" id="api-st">Backend check ho raha hai…</div>
-        <div class="api-url" id="api-url"></div>
+        <div class="api-status" id="api-st">Connecting to backend...</div>
+        <div style="font-size: 12px; color: var(--text-muted); font-family: monospace; margin-top: 4px;" id="api-url"></div>
       </div>
     </div>
-    <button class="btn-cfg" onclick="openM()">⚙ Railway URL Set Karo</button>
+    <button class="btn-outline" onclick="openM()">⚙️ Configure Server</button>
   </div>
 
   <div class="tabs">
     <button class="tab active" onclick="swTab('yt')" id="tab-yt">▶ YouTube</button>
     <button class="tab" onclick="swTab('ig')" id="tab-ig">📸 Instagram</button>
+    <button class="tab" onclick="swTab('hi')" id="tab-hi">🕒 History</button>
   </div>
 
   <div id="pyt">
     <div class="card">
       <div class="row">
         <div class="inp-wrap">
-          <span class="inp-pre">🔍</span>
-          <input class="inp" id="yti" type="text" placeholder="Search karo ya YouTube URL paste karo…" onkeydown="if(event.key==='Enter')ytGo()">
+          <input class="inp" id="yti" type="text" placeholder="Paste YouTube Link or Search..." onkeydown="if(event.key==='Enter')ytGo()">
         </div>
-        <button class="btn-go" onclick="ytGo()">Search →</button>
+        <button class="btn-primary" onclick="ytGo()">Search</button>
       </div>
       <div class="qrow">
-        <span class="qlbl">Quality:</span>
-        <div class="qchip on" onclick="setQ('best',this)">Best</div>
+        <span class="qlbl">Video Quality:</span>
+        <div class="qchip on" onclick="setQ('best',this)">Highest</div>
         <div class="qchip" onclick="setQ('1080',this)">1080p</div>
         <div class="qchip" onclick="setQ('720',this)">720p</div>
-        <div class="qchip" onclick="setQ('480',this)">480p</div>
       </div>
     </div>
-    <div class="errbox" id="yterr"></div>
+    
+    <div id="yterr" style="color: var(--red); font-size: 14px; margin-bottom: 20px; text-align: center;"></div>
+    
+    <div class="st on" id="ytem">
+      <div style="font-size: 40px; opacity: 0.3; margin-bottom: 16px;">🔍</div>
+      <div style="font-size: 18px; font-weight: 600;">Ready to Download</div>
+      <div style="color: var(--text-muted); margin-top: 8px; font-size: 14px;">Paste a link above to fetch metadata</div>
+    </div>
+    
+    <div class="st" id="ytld">
+      <div class="spin"></div>
+      <div style="font-size: 16px; font-weight: 500;" id="ldtxt">Fetching data...</div>
+    </div>
+
     <div class="ipanel" id="infop">
       <div class="ithumb"><img id="iimg" src="" alt=""></div>
       <div class="ibody">
-        <div class="ititle" id="ititl"></div>
-        <div class="imeta">
-          <span>📺 <span id="ich"></span></span>
-          <span>👁 <span id="ivw"></span></span>
-          <span>⏱ <span id="idur"></span></span>
-          <span>👍 <span id="ilk"></span></span>
+        <div style="font-size: 22px; font-weight: 700; margin-bottom: 12px;" id="ititl"></div>
+        <div style="display: flex; gap: 20px; color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">
+          <span id="ich"></span> • <span id="ivw"></span> • <span id="idur"></span>
         </div>
-        <div class="dlgrid">
-          <button class="dlbtn mp4" onclick="dlNow('video')">⬇ Download MP4</button>
-          <button class="dlbtn mp3" onclick="dlNow('audio')">🎵 Download MP3</button>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn-primary" style="flex:1" onclick="dlNow('video')">⬇ Download MP4</button>
+          <button class="btn-outline" style="flex:1" onclick="dlNow('audio')">🎵 Download MP3</button>
         </div>
       </div>
     </div>
-    <div class="st on" id="ytem"><div class="st-icon">▶</div><div class="st-txt">Search karo ya YouTube URL paste karo</div><div class="st-sub">URL paste karne pe direct download milega</div></div>
-    <div class="st" id="ytld"><div class="spin"></div><div class="st-txt" id="ldtxt">Loading…</div><div class="st-sub">yt-dlp se process ho raha hai</div></div>
-    <div class="res-lbl" id="reslbl"></div>
+
     <div class="grid" id="resgrid"></div>
   </div>
 
@@ -229,113 +202,85 @@
     <div class="card">
       <div class="row">
         <div class="inp-wrap">
-          <span class="inp-pre">📸</span>
-          <input class="inp" id="igi" type="text" placeholder="Instagram Reel / Post URL paste karo…" onkeydown="if(event.key==='Enter')igGo()">
+          <input class="inp" id="igi" type="text" placeholder="Paste Instagram Reel URL..." onkeydown="if(event.key==='Enter')igDl()">
         </div>
-        <button class="btn-go" onclick="igGo()">Download →</button>
+        <button class="btn-primary" onclick="igDl()">Download</button>
       </div>
     </div>
-    <div class="errbox" id="igerr"></div>
-    <div class="st on" id="igem"><div class="st-icon">📸</div><div class="st-txt">Instagram URL paste karo</div><div class="st-sub">Reels, Posts, IGTV support karta hai</div></div>
-    <div class="st" id="igld"><div class="spin"></div><div class="st-txt">Instagram media detect ho raha hai…</div></div>
-    <div class="igcard" id="igc">
-      <div class="igh">
-        <div class="igav">📸</div>
-        <div><div style="font-size:15px;font-weight:600;">Instagram Media</div><div style="font-size:12px;color:var(--text3);">Ready to download</div></div>
+    <div class="st on"><div style="font-size: 40px; opacity: 0.3; margin-bottom: 16px;">📸</div><div style="font-size: 18px; font-weight: 600;">Instagram Downloader</div></div>
+  </div>
+
+  <div id="phi" style="display:none">
+    <div class="card" style="padding: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2 style="font-size: 18px; font-weight: 600;">Recent Downloads</h2>
+        <button onclick="clearHistory()" style="background:none; border:none; color: var(--red); cursor: pointer; font-size: 13px; font-weight: 600;">Clear History</button>
       </div>
-      <div class="igb">
-        <button class="igdlbtn" onclick="igDl()">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-size:22px">🎬</span>
-            <div>
-              <div style="font-size:14px;font-weight:500;color:var(--text);text-align:left;">Download Video — MP4</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px;">Best available quality · Real file</div>
-            </div>
-          </div>
-          <span class="badge-hd">HD</span>
-        </button>
-      </div>
+      <div id="histList"></div>
     </div>
   </div>
 
-  <div class="feats">
-    <div class="feat"><span class="fi">⚡</span><div class="ft">Real yt-dlp Downloads</div><div class="fd">Actual files download hote hain. Railway pe hosted backend.</div></div>
-    <div class="feat"><span class="fi">🎵</span><div class="ft">MP3 Extraction</div><div class="fd">ffmpeg se 192kbps MP3 automatic convert hota hai.</div></div>
-    <div class="feat"><span class="fi">🌟</span><div class="ft">4K Quality</div><div class="fd">480p se lekar 4K tak — jo available ho woh lo.</div></div>
-  </div>
-</div>
-
-<div class="toast" id="toast">
-  <div class="ttop">
-    <div class="ttitle"><div class="spin-sm" id="tspin"></div><span id="ttxt">Downloading…</span></div>
-    <button class="tx" onclick="closeT()">✕</button>
-  </div>
-  <div class="tfile" id="tfile"></div>
-  <div class="pbar"><div class="pfill" id="pfill"></div></div>
-  <div class="tfoot"><span id="tpct">0%</span><span id="teta"></span></div>
 </div>
 
 <div class="mbg" id="mbg">
   <div class="modal">
-    <h3>⚙ Railway Backend URL</h3>
-    <p>Railway deploy ke baad jo URL milega woh yahan daalo.<br>
-    Example: <code style="color:var(--accent3);font-size:12px;">https://mediavault-production.up.railway.app</code><br><br>
-    <strong style="color:var(--text);">Local testing ke liye:</strong> <code style="color:var(--accent3);font-size:12px;">http://localhost:8000</code></p>
-    <input class="minp" id="minp" type="text" placeholder="https://your-app.up.railway.app">
-    <div class="mbtns">
-      <button class="bsec" onclick="closeM()">Cancel</button>
-      <button class="btn-go" style="padding:10px 20px;" onclick="saveAPI()">Save & Test</button>
+    <h3 style="font-size: 20px; margin-bottom: 12px;">Server Configuration</h3>
+    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6;">Enter your live Railway backend URL here to connect the frontend to the downloading engine.</p>
+    <input class="inp" id="minp" type="text" placeholder="https://mediavault-pro...up.railway.app" style="margin-bottom: 20px; background: rgba(0,0,0,0.3);">
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button class="btn-outline" onclick="closeM()">Cancel</button>
+      <button class="btn-primary" style="height: auto; padding: 12px 24px;" onclick="saveAPI()">Save & Connect</button>
     </div>
   </div>
+</div>
+
+<div class="toast" id="toast">
+  <div style="font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 8px;">
+    <span id="ttxt">Processing...</span>
+    <span id="tpct" style="color: var(--accent);">0%</span>
+  </div>
+  <div style="font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="tfile"></div>
+  <div class="pbar"><div class="pfill" id="pfill"></div></div>
 </div>
 
 <script>
 let API = localStorage.getItem("mv_api") || "http://localhost:8000";
 let curURL = "", igURL = "", selQ = "best";
 
-// INIT
-updateDisp();
+// Initialize UI
+document.getElementById("api-url").textContent = API;
+document.getElementById("minp").value = API;
 checkAPI();
-
-function updateDisp() {
-  document.getElementById("api-url").textContent = API;
-  document.getElementById("minp").value = API;
-}
+renderHistory();
 
 async function checkAPI() {
   const dot = document.getElementById("api-dot");
   const st = document.getElementById("api-st");
-  dot.className = "api-indicator checking";
-  st.textContent = "Backend check ho raha hai…";
   try {
-    const r = await fetch(API+"/health", {signal:AbortSignal.timeout(6000)});
-    if (r.ok) {
-      dot.className = "api-indicator";
-      st.textContent = "Backend Online ✓ — Ready to download";
-    } else throw 0;
+    const r = await fetch(API+"/health", {signal: AbortSignal.timeout(5000)});
+    if (r.ok) { dot.className = "api-dot on"; st.textContent = "System Online"; } 
+    else throw 0;
   } catch {
-    dot.className = "api-indicator off";
-    st.textContent = "Backend Offline — Upar Railway URL set karo";
+    dot.className = "api-dot off"; st.textContent = "System Offline (Check URL)";
   }
 }
 
-function openM() { document.getElementById("mbg").classList.add("on"); document.getElementById("minp").value = API; }
+function openM() { document.getElementById("mbg").classList.add("on"); }
 function closeM() { document.getElementById("mbg").classList.remove("on"); }
 async function saveAPI() {
-  const v = document.getElementById("minp").value.trim().replace(/\/$/,"");
+  const v = document.getElementById("minp").value.trim().replace(/\/$/, "");
   if (!v) return;
-  API = v;
-  localStorage.setItem("mv_api", API);
-  updateDisp();
-  closeM();
-  await checkAPI();
+  API = v; localStorage.setItem("mv_api", API);
+  document.getElementById("api-url").textContent = API;
+  closeM(); checkAPI();
 }
 
 function swTab(t) {
-  ["yt","ig"].forEach(x => {
-    document.getElementById("p"+x).style.display = x===t?"":"none";
-    document.getElementById("tab-"+x).classList.toggle("active",x===t);
+  ["yt","ig","hi"].forEach(x => {
+    document.getElementById("p"+x).style.display = (x===t) ? "block" : "none";
+    document.getElementById("tab-"+x).classList.toggle("active", x===t);
   });
+  if(t === 'hi') renderHistory();
 }
 
 function setQ(q, el) {
@@ -344,135 +289,169 @@ function setQ(q, el) {
   el.classList.add("on");
 }
 
-function isYT(s) { return s.includes("youtube.com/")||s.includes("youtu.be/"); }
+function isYT(s) { return s.includes("youtube.com/") || s.includes("youtu.be/"); }
 
 async function ytGo() {
   const v = document.getElementById("yti").value.trim();
   if (!v) return;
-  hideYT();
-  setErr("yterr","");
+  
+  document.getElementById("ytem").classList.remove("on");
+  document.getElementById("infop").classList.remove("on");
+  document.getElementById("resgrid").innerHTML = "";
+  document.getElementById("yterr").textContent = "";
+  
   if (isYT(v)) { curURL=v; await fetchInfo(v); }
   else await searchYT(v);
 }
 
 async function fetchInfo(url) {
-  showLd("ytld","Video info fetch ho raha hai…");
+  showLd("ytld", "Extracting video metadata...");
   try {
     const r = await fetch(`${API}/api/info?url=${encodeURIComponent(url)}`);
-    if (!r.ok) throw new Error((await r.json()).detail||"Failed");
+    if (!r.ok) throw new Error("Failed to fetch video details");
     const d = await r.json();
     curURL = `https://www.youtube.com/watch?v=${d.id}`;
     document.getElementById("iimg").src = d.thumbnail;
     document.getElementById("ititl").textContent = d.title;
-    document.getElementById("ich").textContent = d.channel||"—";
-    document.getElementById("ivw").textContent = d.views+" views";
+    document.getElementById("ich").textContent = d.channel || "YouTube";
+    document.getElementById("ivw").textContent = d.views + " views";
     document.getElementById("idur").textContent = d.duration;
-    document.getElementById("ilk").textContent = d.likes+" likes";
     document.getElementById("infop").classList.add("on");
-  } catch(e) {
-    setErr("yterr","❌ "+e.message);
-    document.getElementById("ytem").classList.add("on");
-  } finally { document.getElementById("ytld").classList.remove("on"); }
+  } catch(e) { document.getElementById("yterr").textContent = e.message; } 
+  finally { document.getElementById("ytld").classList.remove("on"); }
 }
 
 async function searchYT(q) {
-  showLd("ytld","YouTube search ho raha hai…");
+  showLd("ytld", "Searching YouTube database...");
   try {
-    const r = await fetch(`${API}/api/search`, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query:q,max_results:8})});
-    if (!r.ok) throw new Error((await r.json()).detail||"Search failed");
+    const r = await fetch(`${API}/api/search`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({query:q, max_results:6})});
+    if (!r.ok) throw new Error("Search failed");
     const d = await r.json();
-    renderCards(d.results);
-  } catch(e) {
-    setErr("yterr","❌ "+e.message);
-    document.getElementById("ytem").classList.add("on");
-  } finally { document.getElementById("ytld").classList.remove("on"); }
+    
+    const g = document.getElementById("resgrid");
+    d.results.forEach((v) => {
+      // Escape quotes for inline onclick handler
+      const safeTitle = v.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+      g.innerHTML += `
+      <div class="vcard">
+        <div class="tw"><img src="${v.thumbnail}"><div style="position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.8); padding:2px 6px; border-radius:4px; font-size:11px; font-weight:600;">${v.duration}</div></div>
+        <div class="cbody">
+          <div class="ctitle">${v.title}</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">${v.channel} • ${v.views} views</div>
+          <div class="cacts">
+            <button class="bact mp4" onclick="dlCard('${v.url}', 'video', '${safeTitle}', '${v.thumbnail}')">MP4</button>
+            <button class="bact mp3" onclick="dlCard('${v.url}', 'audio', '${safeTitle}', '${v.thumbnail}')">MP3</button>
+          </div>
+        </div>
+      </div>`;
+    });
+  } catch(e) { document.getElementById("yterr").textContent = e.message; } 
+  finally { document.getElementById("ytld").classList.remove("on"); }
 }
-
-function renderCards(vids) {
-  const g = document.getElementById("resgrid"), l = document.getElementById("reslbl");
-  g.innerHTML="";
-  if (!vids.length) { document.getElementById("ytem").classList.add("on"); return; }
-  l.style.display=""; l.textContent=`— ${vids.length} results`;
-  vids.forEach((v,i)=>{
-    const c=document.createElement("div"); c.className="vcard"; c.style.animationDelay=(i*0.06)+"s";
-    c.innerHTML=`<div class="tw"><img src="${v.thumbnail}" alt="" loading="lazy"><div class="tov"><span class="dbadge">${v.duration}</span></div><div class="pb">▶</div></div>
-    <div class="cbody"><div class="ctitle">${v.title}</div><div class="cmeta"><span>📺 ${v.channel||"—"}</span><span>${v.views}</span></div>
-    <div class="cacts"><button class="bact mp4" onclick="dlCard('${v.url}','video')">⬇ MP4</button><button class="bact mp3" onclick="dlCard('${v.url}','audio')">🎵 MP3</button></div></div>`;
-    g.appendChild(c);
-  });
-}
-
-async function dlCard(url,t) { curURL=url; await dlNow(t); }
 
 async function dlNow(type) {
   if (!curURL) return;
-  const ep = type==="video"?"/api/download/video":"/api/download/audio";
-  await doDL(ep, {url:curURL,format:type,quality:selQ}, type==="video"?"video.mp4":"audio.mp3");
+  const t = document.getElementById("ititl").textContent;
+  const th = document.getElementById("iimg").src;
+  const ep = type==="video" ? "/api/download/video" : "/api/download/audio";
+  await doDL(ep, {url:curURL, format:type, quality:selQ}, type==="video"?"video.mp4":"audio.mp3", {title: t, thumb: th, format: type});
 }
 
-function igGo() {
-  const url = document.getElementById("igi").value.trim();
-  if (!url) return;
-  igURL=url;
-  document.getElementById("igem").classList.remove("on");
-  document.getElementById("igc").classList.remove("on");
-  document.getElementById("igld").classList.add("on");
-  setErr("igerr","");
-  setTimeout(()=>{ document.getElementById("igld").classList.remove("on"); document.getElementById("igc").classList.add("on"); },700);
+async function dlCard(url, type, title, thumb) {
+  const ep = type==="video" ? "/api/download/video" : "/api/download/audio";
+  await doDL(ep, {url:url, format:type, quality:selQ}, type==="video"?"video.mp4":"audio.mp3", {title: title, thumb: thumb, format: type});
 }
 
 async function igDl() {
-  if (!igURL) return;
-  await doDL("/api/download/instagram",{url:igURL,format:"mp4"},"reel.mp4");
+  const url = document.getElementById("igi").value.trim();
+  if (!url) return;
+  await doDL("/api/download/instagram", {url:url, format:"mp4"}, "instagram_reel.mp4", {title: "Instagram Media", thumb: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png", format: "video"});
 }
 
-async function doDL(ep, body, fname) {
-  showToast(fname,"Server se connect ho raha hai…");
+async function doDL(ep, body, fname, meta) {
+  showToast(fname, "Connecting to server...");
   fillP(15);
   try {
-    const r = await fetch(API+ep, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-    if (!r.ok) { const e=await r.json().catch(()=>({detail:"Server error"})); throw new Error(e.detail||"Download failed"); }
-    fillP(75); setTmsg("File save ho rahi hai…");
+    const r = await fetch(API+ep, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+    if (!r.ok) throw new Error("Download failed on server");
+    
+    fillP(70); 
+    document.getElementById("ttxt").textContent = "Saving to device...";
+    
     const blob = await r.blob();
     fillP(100);
-    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=fname; a.click(); URL.revokeObjectURL(a.href);
-    doneT();
-  } catch(e) { failT("❌ "+e.message); }
+    const a = document.createElement("a"); 
+    a.href = URL.createObjectURL(blob); 
+    a.download = fname; 
+    a.click(); 
+    URL.revokeObjectURL(a.href);
+    
+    document.getElementById("ttxt").textContent = "Download Complete! ✓";
+    document.getElementById("pfill").style.background = "var(--green)";
+    
+    // Save to History
+    saveToHistory(meta.title, body.url, meta.format, meta.thumb);
+    
+    setTimeout(() => { document.getElementById("toast").classList.remove("on"); }, 3000);
+  } catch(e) { 
+    document.getElementById("ttxt").textContent = "Error occurred";
+    document.getElementById("pfill").style.background = "var(--red)";
+    setTimeout(() => { document.getElementById("toast").classList.remove("on"); }, 3000);
+  }
 }
 
-function showToast(f,m) {
-  document.getElementById("tfile").textContent=f;
-  document.getElementById("ttxt").textContent=m;
-  document.getElementById("tspin").style.display="";
-  const pf=document.getElementById("pfill"); pf.style.cssText="width:5%;background:linear-gradient(90deg,var(--accent),var(--accent2))";
-  document.getElementById("tpct").textContent="5%";
+// History Logic
+function saveToHistory(title, url, format, thumb) {
+  let hist = JSON.parse(localStorage.getItem("mv_history_v1") || "[]");
+  hist.unshift({ title, url, format, thumb, date: new Date().toLocaleDateString() });
+  if(hist.length > 30) hist.pop(); // Keep only last 30
+  localStorage.setItem("mv_history_v1", JSON.stringify(hist));
+}
+
+function renderHistory() {
+  const list = document.getElementById("histList");
+  let hist = JSON.parse(localStorage.getItem("mv_history_v1") || "[]");
+  
+  if(hist.length === 0) {
+    list.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">No downloads yet. Your history will appear here.</div>`;
+    return;
+  }
+  
+  list.innerHTML = "";
+  hist.forEach(h => {
+    list.innerHTML += `
+    <div class="h-item">
+      <img src="${h.thumb}" class="h-thumb">
+      <div class="h-info">
+        <div class="h-title">${h.title}</div>
+        <div class="h-meta"><span class="h-badge">${h.format}</span> Saved on ${h.date}</div>
+      </div>
+      <a href="${h.url}" target="_blank" class="btn-outline" style="text-decoration:none; padding: 6px 12px;">Link</a>
+    </div>`;
+  });
+}
+
+function clearHistory() {
+  localStorage.removeItem("mv_history_v1");
+  renderHistory();
+}
+
+// Helpers
+function showToast(f, m) {
+  document.getElementById("tfile").textContent = f;
+  document.getElementById("ttxt").textContent = m;
+  document.getElementById("pfill").style.background = "var(--accent)";
   document.getElementById("toast").classList.add("on");
+  fillP(5);
 }
-function fillP(p) { document.getElementById("pfill").style.width=p+"%"; document.getElementById("tpct").textContent=p+"%"; }
-function setTmsg(m) { document.getElementById("ttxt").textContent=m; }
-function doneT() {
-  document.getElementById("ttxt").textContent="Download Complete! ✓";
-  document.getElementById("tspin").style.display="none";
-  document.getElementById("pfill").style.cssText="width:100%;background:var(--green)";
-  document.getElementById("tpct").textContent="Done";
-  setTimeout(closeT,3500);
+function fillP(p) { 
+  document.getElementById("pfill").style.width = p+"%"; 
+  document.getElementById("tpct").textContent = p+"%"; 
 }
-function failT(m) {
-  document.getElementById("ttxt").textContent=m;
-  document.getElementById("tspin").style.display="none";
-  document.getElementById("pfill").style.cssText="width:100%;background:var(--red)";
+function showLd(id, m) { 
+  document.getElementById(id).classList.add("on"); 
+  if(document.getElementById("ldtxt")) document.getElementById("ldtxt").textContent = m; 
 }
-function closeT() { document.getElementById("toast").classList.remove("on"); }
-
-function hideYT() {
-  document.getElementById("ytem").classList.remove("on");
-  document.getElementById("ytld").classList.remove("on");
-  document.getElementById("infop").classList.remove("on");
-  document.getElementById("reslbl").style.display="none";
-  document.getElementById("resgrid").innerHTML="";
-}
-function showLd(id,m) { document.getElementById(id).classList.add("on"); const e=document.getElementById("ldtxt"); if(e) e.textContent=m; }
-function setErr(id,m) { const e=document.getElementById(id); e.textContent=m; e.classList.toggle("on",!!m); }
 </script>
 </body>
 </html>
