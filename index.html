@@ -354,12 +354,20 @@ async function dlNow(type) {
   const t = document.getElementById("ititl").textContent;
   const th = document.getElementById("iimg").src;
   const ep = type==="video" ? "/api/download/video" : "/api/download/audio";
-  await doDL(ep, {url:curURL, format:type, quality:selQ}, type==="video"?"video.mp4":"audio.mp3", {title: t, thumb: th, format: type});
+  
+  // Real name generate karo aur illegal characters hatao
+  const safeName = t.replace(/[\\/:*?"<>|]/g, "").trim() + (type==="video" ? ".mp4" : ".mp3");
+  
+  await doDL(ep, {url:curURL, format:type, quality:selQ}, safeName, {title: t, thumb: th, format: type});
 }
 
 async function dlCard(url, type, title, thumb) {
   const ep = type==="video" ? "/api/download/video" : "/api/download/audio";
-  await doDL(ep, {url:url, format:type, quality:selQ}, type==="video"?"video.mp4":"audio.mp3", {title: title, thumb: thumb, format: type});
+  
+  // Real name generate karo
+  const safeName = title.replace(/[\\/:*?"<>|]/g, "").trim() + (type==="video" ? ".mp4" : ".mp3");
+  
+  await doDL(ep, {url:url, format:type, quality:selQ}, safeName, {title: title, thumb: thumb, format: type});
 }
 
 async function igDl() {
