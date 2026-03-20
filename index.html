@@ -293,6 +293,18 @@ function setQ(q, el) {
 
 function isYT(s) { return s.includes("youtube.com/") || s.includes("youtu.be/"); }
 
+  // Input box ko ek click mein clear karne ke liye (Works for both YouTube & Instagram)
+function clearSearch(inputId) {
+  const input = document.getElementById(inputId);
+  input.value = "";
+  input.focus(); // Cursor wapas box me laane ke liye
+  
+  // Agar YouTube ka box clear kiya hai, toh result bhi hide kar do
+  if (inputId === 'yti') {
+    handleYTInput(); 
+  }
+}
+
 // Auto-detect & clear old results
 function handleYTInput() {
   const v = document.getElementById("yti").value.trim();
