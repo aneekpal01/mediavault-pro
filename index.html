@@ -178,8 +178,14 @@
           <span id="ich"></span> • <span id="ivw"></span> • <span id="idur"></span>
         </div>
         <div style="display: flex; gap: 12px;">
-          <button class="btn-primary" style="flex:1" onclick="openQModal('video', curURL, document.getElementById('ititl').textContent, document.getElementById('iimg').src)">⬇ Download MP4</button>
-          <button class="btn-outline" style="flex:1" onclick="openQModal('audio', curURL, document.getElementById('ititl').textContent, document.getElementById('iimg').src)">🎵 Download Audio</button>
+  <button class="btn-primary" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.2;" onclick="openQModal('video', curURL, document.getElementById('ititl').textContent, document.getElementById('iimg').src)">
+  <span>⬇ Download Video</span>
+  <span style="font-size:11px; font-weight:500; opacity:0.8;">(MP4 Format)</span>
+</button>
+<button class="btn-outline" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.2; height: 57px;" onclick="openQModal('audio', curURL, document.getElementById('ititl').textContent, document.getElementById('iimg').src)">
+  <span>🎵 Download Audio</span>
+  <span style="font-size:11px; font-weight:500; opacity:0.6;">(MP3 / M4A)</span>
+</button>
         </div>
       </div>
     </div>
@@ -419,8 +425,14 @@ async function searchYT(q) {
           <div class="ctitle">${v.title}</div>
           <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">${v.channel} • ${v.views} views</div>
           <div class="cacts">
-            <button class="bact mp4" onclick="openQModal('video', '${v.url}', '${safeTitle}', '${v.thumbnail}')">MP4</button>
-            <button class="bact mp3" onclick="openQModal('audio', '${v.url}', '${safeTitle}', '${v.thumbnail}')">Audio</button>
+            <button class="bact mp4" onclick="openQModal('video', '${v.url}', '${safeTitle}', '${v.thumbnail}')" style="display:flex; flex-direction:column; align-items:center;">
+  <span>⬇ Video</span>
+  <span style="font-size:10px; font-weight:400; opacity:0.6;">MP4</span>
+</button>
+<button class="bact mp3" onclick="openQModal('audio', '${v.url}', '${safeTitle}', '${v.thumbnail}')" style="display:flex; flex-direction:column; align-items:center;">
+  <span>🎵 Audio</span>
+  <span style="font-size:10px; font-weight:400; opacity:0.6;">MP3/M4A</span>
+</button>
           </div>
         </div>
       </div>`;
