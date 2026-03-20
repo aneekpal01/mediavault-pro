@@ -42,6 +42,7 @@ class DownloadRequest(BaseModel):
 async def search_youtube(req: SearchRequest):
     """YouTube videos search karo"""
     ydl_opts = {
+        "cookiefile": "cookies.txt",
         "quiet": True,
         "no_warnings": True,
         "extract_flat": True,
@@ -80,6 +81,7 @@ async def search_youtube(req: SearchRequest):
 async def get_video_info(url: str):
     """Video ka full info fetch karo (stats, formats)"""
     ydl_opts = {
+        "cookiefile": "cookies.txt",
         "quiet": True,
         "no_warnings": True,
         "skip_download": True,
@@ -136,6 +138,7 @@ async def download_video(req: DownloadRequest):
     }
 
     ydl_opts = {
+        "cookiefile": "cookies.txt",
         "format": quality_map.get(req.quality, quality_map["best"]),
         "outtmpl": str(output_path),
         "quiet": True,
@@ -172,6 +175,7 @@ async def download_audio(req: DownloadRequest):
     audio_ext = "m4a" if req.quality == "m4a" else "mp3"
 
     ydl_opts = {
+        "cookiefile": "cookies.txt",
         "format": "bestaudio/best",
         "outtmpl": str(output_template),
         "quiet": True,
