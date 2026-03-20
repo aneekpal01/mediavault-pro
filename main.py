@@ -161,27 +161,30 @@ async def download_video(req: DownloadRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── DOWNLOAD AUDIO (MP3) ──────────────────────────────
+# ── DOWNLOAD AUDIO (MP3 / M4A) ──────────────────────────────
 @app.post("/api/download/audio")
 async def download_audio(req: DownloadRequest):
-    """Audio download karo MP3 format mein"""
+    """Audio download karo MP3/M4A format mein"""
     file_id = str(uuid.uuid4())
     output_template = DOWNLOAD_DIR / f"{file_id}.%(ext)s"
+
+    # Frontend se jo quality aayi hai (m4a ya mp3) usko check karo
+    audio_ext = "m4a" if req.quality == "m4a" else "mp3"
 
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": str(output_template),
         "quiet": True,
         "no_warnings": True,
-        "writethumbnail": True,  # Thumbnail image download karega
+        "writethumbnail": True,  # Thumbnail DP ke liye
         "postprocessors": [
             {
                 "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
+                "preferredcodec": audio_ext,
                 "preferredquality": "192",
             },
-            {"key": "FFmpegMetadata", "add_metadata": True},  # Song name, Artist add karega
-            {"key": "EmbedThumbnail", "already_have_thumbnail": False},  # DP/Cover art ko MP3 me embed karega
+            {"key": "FFmpegMetadata", "add_metadata": True},
+            {"key": "EmbedThumbnail", "already_have_thumbnail": False},
         ],
     }
 
@@ -189,14 +192,15 @@ async def download_audio(req: DownloadRequest):
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: _do_download(req.url, ydl_opts))
 
-        mp3_path = DOWNLOAD_DIR / f"{file_id}.mp3"
-        if not mp3_path.exists():
-            raise HTTPException(status_code=500, detail="MP3 conversion failed")
+        # Check karo final file kis naam se save hui
+        final_path = DOWNLOAD_DIR / f"{file_id}.{audio_ext}"
+        if not final_path.exists():
+            raise HTTPException(status_code=500, detail=f"{audio_ext.upper()} conversion failed")
 
         return FileResponse(
-            path=str(mp3_path),
-            filename=f"mediavault_{file_id[:8]}.mp3",
-            media_type="audio/mpeg",
+            path=str(final_path),
+            filename=f"mediavault_{file_id[:8]}.{audio_ext}",
+            media_type=f"audio/{'mp4' if audio_ext == 'm4a' else 'mpeg'}",
         )
 
     except Exception as e:
