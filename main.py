@@ -173,11 +173,16 @@ async def download_audio(req: DownloadRequest):
         "outtmpl": str(output_template),
         "quiet": True,
         "no_warnings": True,
-        "postprocessors": [{
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
-            "preferredquality": "192",
-        }],
+        "writethumbnail": True,  # Thumbnail image download karega
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            },
+            {"key": "FFmpegMetadata", "add_metadata": True},  # Song name, Artist add karega
+            {"key": "EmbedThumbnail", "already_have_thumbnail": False},  # DP/Cover art ko MP3 me embed karega
+        ],
     }
 
     try:
