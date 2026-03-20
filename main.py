@@ -27,7 +27,6 @@ DOWNLOAD_DIR.mkdir(exist_ok=True)
 
 # ── HELPERS ────────────────────────────────────────────
 def get_base_ydl_opts():
-    """Cookie aur basic safety har request mein inject karne ke liye"""
     opts = {
         "quiet": True,
         "no_warnings": True,
@@ -67,8 +66,8 @@ class SearchRequest(BaseModel):
 
 class DownloadRequest(BaseModel):
     url: str
-    format: str  # "mp4" | "mp3"
-    quality: str = "best"  # "best" | "1080" | "720" | "480"
+    format: str
+    quality: str = "best"
 
 
 # ── SEARCH YOUTUBE ────────────────────────────────────
@@ -117,8 +116,8 @@ async def get_video_info(url: str):
     ydl_opts = get_base_ydl_opts()
     ydl_opts.update({
         "skip_download": True,
-         
-        "format": "bv*+ba/b",  
+        "ignoreerrors": True,  
+        "format": "bv*+ba/b/ba/bv*",  # 🔥 THE REAL ULTIMATE FALLBACK (Added /ba for Music Tracks)
     })
 
     try:
@@ -177,13 +176,13 @@ async def download_video(req: DownloadRequest):
     output_template = DOWNLOAD_DIR / f"{file_id}.%(ext)s"
 
     if req.quality in ["best", "Audio Only / Auto"]:
-        format_str = "bv*+ba/b"
+        format_str = "bv*+ba/b/ba/bv*"
     else:
         try:
             q = int(str(req.quality).replace("p", ""))
-            format_str = f"bv*[height<={q}]+ba/bv*+ba/b"
+            format_str = f"bv*[height<={q}]+ba/bv*+ba/b/ba/bv*"
         except:
-            format_str = "bv*+ba/b"
+            format_str = "bv*+ba/b/ba/bv*"
 
     ydl_opts = get_base_ydl_opts()
     ydl_opts.update({
@@ -196,18 +195,32 @@ async def download_video(req: DownloadRequest):
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: _do_download(req.url, ydl_opts))
 
-        final_path = DOWNLOAD_DIR / f"{file_id}.mp4"
-        if not final_path.exists():
-            mkv_path = DOWNLOAD_DIR / f"{file_id}.mkv"
-            if mkv_path.exists():
-                final_path = mkv_path
-            else:
-                raise HTTPException(status_code=500, detail="Video conversion failed at backend.")
+        # 🔥 SMART FILE CHECK: Agar art track hai toh .mp4 nahi .m4a milega, crash rokne ke liye
+        downloaded_files = list(DOWNLOAD_DIR.glob(f"{file_id}.*"))
+        if not downloaded_files:
+            raise HTTPException(status_code=500, detail="Video conversion failed at backend.")
+
+        final_path = None
+        for ext in ['.mp4', '.mkv', '.webm', '.m4a', '.mp3']:
+            p = DOWNLOAD_DIR / f"{file_id}{ext}"
+            if p.exists():
+                final_path = p
+                break
+        
+        if not final_path:
+            final_path = downloaded_files[0]
+
+        ext_str = final_path.suffix.lower()
+        mime_type = "video/mp4"
+        if ext_str in [".m4a", ".mp3"]:
+            mime_type = "audio/mp4" if ext_str == ".m4a" else "audio/mpeg"
+        elif ext_str == ".webm":
+             mime_type = "video/webm"
 
         return FileResponse(
             path=str(final_path),
-            filename=f"mediavault_{file_id[:8]}.mp4",
-            media_type="video/mp4",
+            filename=f"mediavault_{file_id[:8]}{ext_str}",
+            media_type=mime_type,
         )
 
     except Exception as e:
@@ -263,7 +276,7 @@ async def download_instagram(req: DownloadRequest):
 
     ydl_opts = get_base_ydl_opts()
     ydl_opts.update({
-        "format": "bv*+ba/b",
+        "format": "bv*+ba/b/ba/bv*",
         "outtmpl": str(output_path),
     })
 
@@ -271,13 +284,16 @@ async def download_instagram(req: DownloadRequest):
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: _do_download(req.url, ydl_opts))
 
-        if not output_path.exists():
+        downloaded_files = list(DOWNLOAD_DIR.glob(f"{file_id}.*"))
+        if not downloaded_files:
             raise HTTPException(status_code=500, detail="Instagram download failed at backend.")
+            
+        final_path = downloaded_files[0]
 
         return FileResponse(
-            path=str(output_path),
-            filename=f"reel_{file_id[:8]}.mp4",
-            media_type="video/mp4",
+            path=str(final_path),
+            filename=f"reel_{file_id[:8]}{final_path.suffix}",
+            media_type="video/mp4" if final_path.suffix == ".mp4" else "application/octet-stream",
         )
 
     except Exception as e:
