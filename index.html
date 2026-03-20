@@ -156,7 +156,7 @@
     <div class="card">
       <div class="row">
         <div class="inp-wrap">
-          <input class="inp" id="yti" type="text" placeholder="Paste YouTube Link or Search..." onkeydown="if(event.key==='Enter')ytGo()">
+          <input class="inp" id="yti" type="text" placeholder="Paste YouTube Link or Search..." onkeydown="if(event.key==='Enter')ytGo()" oninput="handleYTInput()">
         </div>
         <button class="btn-primary" onclick="ytGo()">Search</button>
       </div>
@@ -291,6 +291,25 @@ function setQ(q, el) {
 
 function isYT(s) { return s.includes("youtube.com/") || s.includes("youtu.be/"); }
 
+// Auto-detect & clear old results
+function handleYTInput() {
+  const v = document.getElementById("yti").value.trim();
+  
+  // Naya link type/paste karte hi purana result turant hide kar do
+  document.getElementById("infop").classList.remove("on");
+  document.getElementById("resgrid").innerHTML = "";
+  document.getElementById("yterr").textContent = "";
+  
+  // Agar box khali ho gaya, toh wapas "Ready to Download" dikhao
+  if (v === "") {
+    document.getElementById("ytem").classList.add("on");
+  } 
+  // Agar valid YouTube link paste kiya hai, toh automatic search start kar do
+  else if (isYT(v)) {
+    ytGo();
+  }
+}
+
 async function ytGo() {
   const v = document.getElementById("yti").value.trim();
   if (!v) return;
@@ -325,7 +344,7 @@ async function searchYT(q) {
   showLd("ytld", "Searching YouTube database...");
   try {
     const r = await fetch(`${API}/api/search`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({query:q, max_results:6})});
-    if (!r.ok) throw new Error("Search failed");
+    if (!r.ok) { const err = await r.json().catch(()=>({})); throw new Error(err.detail || "Search failed"); }
     const d = await r.json();
     
     const g = document.getElementById("resgrid");
@@ -381,7 +400,7 @@ async function doDL(ep, body, fname, meta) {
   fillP(15);
   try {
     const r = await fetch(API+ep, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
-    if (!r.ok) throw new Error("Download failed on server");
+    if (!r.ok) { const err = await r.json().catch(()=>({})); throw new Error(err.detail || "Download failed on server"); }
     
     fillP(70); 
     document.getElementById("ttxt").textContent = "Saving to device...";
@@ -402,9 +421,9 @@ async function doDL(ep, body, fname, meta) {
     
     setTimeout(() => { document.getElementById("toast").classList.remove("on"); }, 3000);
   } catch(e) { 
-    document.getElementById("ttxt").textContent = "Error occurred";
+    document.getElementById("ttxt").textContent = "Error occurred: " + e.message;
     document.getElementById("pfill").style.background = "var(--red)";
-    setTimeout(() => { document.getElementById("toast").classList.remove("on"); }, 3000);
+    setTimeout(() => { document.getElementById("toast").classList.remove("on"); }, 5000);
   }
 }
 
