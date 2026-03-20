@@ -13,7 +13,11 @@ app = FastAPI(title="MediaVault Pro API", version="1.0.0")
 # CORS — allow frontend to call backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # production me apna domain daalo
+    allow_origins=[
+        "https://aneekpal01.github.io", 
+        "http://localhost:8000",
+        "http://localhost:3000"
+    ],  
     allow_methods=["*"],
     allow_headers=["*"],
 )
