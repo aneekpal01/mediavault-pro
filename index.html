@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediaVault Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0f;--bg2:#111118;--bg3:#16161f;--bg4:#1c1c28;
+    --accent:#7c5cfc;--accent2:#a78bfa;--accent3:#c4b5fd;
+    --gold:#f59e0b;--gold2:#fcd34d;--green:#10b981;--red:#ef4444;
+    --text:#f1f0ff;--text2:#a09cc4;--text3:#6b6892;
+    --border:rgba(124,92,252,0.15);--border2:rgba(124,92,252,0.3);
+    --glass:rgba(124,92,252,0.06);--radius:16px;--radius-sm:10px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  .amb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
+  .amb1{width:600px;height:600px;background:rgba(124,92,252,0.08);top:-200px;left:-100px;}
+  .amb2{width:400px;height:400px;background:rgba(245,158,11,0.05);bottom:-100px;right:-100px;}
+  .app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:28px 0 40px;border-bottom:1px solid var(--border);margin-bottom:44px;}
+  .logo{display:flex;align-items:center;gap:12px;}
+  .logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),#5b21b6);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .logo-text{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.5px;}
+  .logo-badge{font-size:10px;font-weight:700;background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-left:4px;letter-spacing:1.5px;}
+  .pills{display:flex;gap:8px;}
+  .pill{display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border2);border-radius:100px;font-size:12px;font-weight:500;color:var(--text2);background:var(--glass);}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
+  .hero{text-align:center;margin-bottom:52px;}
+  .hero-tag{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;background:rgba(124,92,252,0.1);border:1px solid var(--border2);border-radius:100px;font-size:12px;font-weight:500;color:var(--accent3);letter-spacing:0.5px;margin-bottom:24px;}
+  h1{font-family:'Syne',sans-serif;font-size:clamp(36px,6vw,64px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:18px;}
+  h1 span{background:linear-gradient(135deg,var(--accent2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero-sub{font-size:17px;color:var(--text2);font-weight:300;max-width:520px;margin:0 auto;line-height:1.7;}
+  .api-banner{background:rgba(124,92,252,0.07);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  .api-left{display:flex;align-items:center;gap:12px;}
+  .api-indicator{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0;transition:all 0.3s;}
+  .api-indicator.off{background:var(--red);box-shadow:0 0 8px var(--red);}
+  .api-indicator.checking{background:var(--gold);box-shadow:0 0 8px var(--gold);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  .api-status{font-size:13px;font-weight:500;}
+  .api-url{font-size:11px;color:var(--text3);font-family:monospace;margin-top:2px;}
+  .btn-cfg{background:none;border:1px solid var(--border);color:var(--text3);font-size:12px;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+  .btn-cfg:hover{border-color:var(--accent);color:var(--accent3);}
+  .tabs{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:6px;gap:4px;margin-bottom:28px;}
+  .tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:11px;font-size:14px;font-weight:500;color:var(--text3);cursor:pointer;transition:all 0.25s;border:none;background:none;font-family:inherit;}
+  .tab.active{background:var(--bg4);border:1px solid var(--border2);color:var(--text);box-shadow:0 2px 20px rgba(124,92,252,0.15);}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:28px;transition:border-color 0.3s;}
+  .card:focus-within{border-color:var(--border2);}
+  .row{display:flex;gap:12px;align-items:center;}
+  .inp-wrap{flex:1;position:relative;}
+  .inp-pre{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none;z-index:1;}
+  .inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 16px 16px 50px;font-size:15px;color:var(--text);font-family:inherit;outline:none;transition:border-color 0.25s,box-shadow 0.25s;}
+  .inp::placeholder{color:var(--text3);}
+  .inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,252,0.12);}
+  .btn-go{display:flex;align-items:center;gap:8px;padding:16px 26px;background:linear-gradient(135deg,var(--accent),#5b21b6);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;transition:transform 0.15s,box-shadow 0.2s;white-space:nowrap;}
+  .btn-go:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(124,92,252,0.35);}
+  .btn-go:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .qrow{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;align-items:center;}
+  .qlbl{font-size:12px;color:var(--text3);}
+  .qchip{padding:6px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:100px;font-size:12px;color:var(--text2);cursor:pointer;transition:all 0.2s;user-select:none;}
+  .qchip.on,.qchip:hover{border-color:var(--accent);color:var(--accent3);background:rgba(124,92,252,0.08);}
+  .res-lbl{font-size:12px;font-weight:600;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:16px;display:none;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:32px;}
+  .vcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color 0.25s,transform 0.2s,box-shadow 0.25s;animation:up 0.4s ease both;}
+  .vcard:hover{border-color:var(--border2);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+  @keyframes up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .tw{position:relative;aspect-ratio:16/9;background:var(--bg3);overflow:hidden;}
+  .tw img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;}
+  .vcard:hover .tw img{transform:scale(1.04);}
+  .tov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent 60%);display:flex;align-items:flex-end;padding:12px;}
+  .dbadge{background:rgba(0,0,0,0.85);color:#fff;font-size:11px;font-weight:600;padding:3px 7px;border-radius:6px;}
+  .pb{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);opacity:0;width:48px;height:48px;background:rgba(255,255,255,0.95);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;transition:opacity 0.2s,transform 0.2s;}
+  .vcard:hover .pb{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  .cbody{padding:14px 16px 16px;}
+  .ctitle{font-size:14px;font-weight:500;line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .cmeta{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:12px;}
+  .cacts{display:flex;gap:6px;padding-top:12px;border-top:1px solid var(--border);}
+  .bact{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.2s;border:1px solid var(--border);background:var(--bg3);color:var(--text2);}
+  .bact:hover{background:var(--bg4);color:var(--text);}
+  .bact.mp4:hover{border-color:rgba(124,92,252,0.5);color:var(--accent3);}
+  .bact.mp3:hover{border-color:rgba(245,158,11,0.5);color:var(--gold2);}
+  .ipanel{display:none;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;margin-bottom:28px;animation:up 0.35s ease;box-shadow:0 30px 80px rgba(0,0,0,0.5);}
+  .ipanel.on{display:block;}
+  .ithumb{aspect-ratio:16/9;background:#000;overflow:hidden;}
+  .ithumb img{width:100%;height:100%;object-fit:cover;}
+  .ibody{padding:24px;}
+  .ititle{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;line-height:1.3;margin-bottom:12px;}
+  .imeta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+  .imeta span{font-size:13px;color:var(--text3);}
+  .dlgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .dlbtn{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;border:1px solid;width:100%;}
+  .dlbtn.mp4{background:rgba(124,92,252,0.1);border-color:var(--accent);color:var(--accent3);}
+  .dlbtn.mp3{background:rgba(245,158,11,0.08);border-color:var(--gold);color:var(--gold2);}
+  .dlbtn:hover{transform:translateY(-2px);}
+  .dlbtn.mp4:hover{background:rgba(124,92,252,0.2);box-shadow:0 8px 24px rgba(124,92,252,0.2);}
+  .dlbtn.mp3:hover{background:rgba(245,158,11,0.15);box-shadow:0 8px 24px rgba(245,158,11,0.15);}
+  .dlbtn:disabled{opacity:0.4;cursor:not-allowed;transform:none !important;}
+  .spin{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:rot 0.9s linear infinite;margin:0 auto 20px;}
+  .spin-sm{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:rot 0.8s linear infinite;}
+  @keyframes rot{to{transform:rotate(360deg);}}
+  .st{text-align:center;padding:60px 24px;display:none;}
+  .st.on{display:block;}
+  .st-icon{font-size:48px;margin-bottom:16px;opacity:0.4;}
+  .st-txt{color:var(--text2);font-size:16px;}
+  .st-sub{color:var(--text3);font-size:13px;margin-top:6px;}
+  .errbox{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-sm);padding:14px 18px;color:#fca5a5;font-size:13px;margin-bottom:16px;display:none;}
+  .errbox.on{display:block;}
+  .igcard{display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:28px;animation:up 0.35s ease;}
+  .igcard.on{display:block;}
+  .igh{display:flex;align-items:center;gap:14px;padding:20px 24px;border-bottom:1px solid var(--border);}
+  .igav{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);display:flex;align-items:center;justify-content:center;font-size:22px;}
+  .igb{padding:24px;}
+  .igdlbtn{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;font-family:inherit;width:100%;}
+  .igdlbtn:hover{border-color:var(--border2);background:var(--bg4);}
+  .igdlbtn:disabled{opacity:0.4;cursor:not-allowed;}
+  .badge-hd{background:rgba(16,185,129,0.15);color:var(--green);font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;}
+  .toast{position:fixed;bottom:32px;right:32px;z-index:999;width:340px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;box-shadow:0 24px 60px rgba(0,0,0,0.6);display:none;animation:sin 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+  .toast.on{display:block;}
+  @keyframes sin{from{transform:translateX(120%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+  .ttop{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .ttitle{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+  .tx{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;}
+  .tfile{font-size:12px;color:var(--text3);margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pbar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:8px;}
+  .pfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;width:0%;transition:width 0.4s ease;}
+  .tfoot{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);}
+  .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:48px;padding-top:40px;border-top:1px solid var(--border);}
+  .feat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border-color 0.25s;}
+  .feat:hover{border-color:var(--border2);}
+  .fi{font-size:24px;margin-bottom:12px;display:block;}
+  .ft{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:6px;}
+  .fd{font-size:13px;color:var(--text3);line-height:1.6;}
+  .mbg{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;display:none;align-items:center;justify-content:center;}
+  .mbg.on{display:flex;}
+  .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:28px;width:90%;max-width:500px;animation:up 0.3s ease;}
+  .modal h3{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+  .modal p{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.7;}
+  .minp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-size:13px;color:var(--text);font-family:monospace;outline:none;margin-bottom:16px;transition:border-color 0.2s;}
+  .minp:focus{border-color:var(--accent);}
+  .mbtns{display:flex;gap:10px;justify-content:flex-end;}
+  .bsec{padding:10px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+  .bsec:hover{border-color:var(--border2);color:var(--text);}
+  @media(max-width:640px){.grid{grid-template-columns:1fr;}.feats{grid-template-columns:1fr;}.pills{display:none;}.toast{width:calc(100vw - 32px);right:16px;bottom:16px;}h1{font-size:36px;}header{flex-direction:column;gap:16px;}.dlgrid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="amb amb1"></div>
+<div class="amb amb2"></div>
+<div class="app">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">⬇</div>
+      <div class="logo-text">MediaVault <span class="logo-badge">PRO</span></div>
+    </div>
+    <div class="pills">
+      <div class="pill"><span class="dot"></span> Live</div>
+      <div class="pill">🔒 Private</div>
+      <div class="pill">⚡ yt-dlp Powered</div>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-tag">✦ Real Downloads · FastAPI + yt-dlp · Railway Hosted</div>
+    <h1>Download <span>Anything,</span><br>Anywhere.</h1>
+    <p class="hero-sub">YouTube videos up to 4K, MP3 at 192kbps, Instagram Reels — powered by your Railway backend.</p>
+  </div>
+
+  <div class="api-banner">
+    <div class="api-left">
+      <div class="api-indicator checking" id="api-dot"></div>
+      <div>
+        <div class="api-status" id="api-st">Backend check ho raha hai…</div>
+        <div class="api-url" id="api-url"></div>
+      </div>
+    </div>
+    <button class="btn-cfg" onclick="openM()">⚙ Railway URL Set Karo</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="swTab('yt')" id="tab-yt">▶ YouTube</button>
+    <button class="tab" onclick="swTab('ig')" id="tab-ig">📸 Instagram</button>
+  </div>
+
+  <!-- YOUTUBE -->
+  <div id="pyt">
+    <div class="card">
+      <div class="row">
+        <div class="inp-wrap">
+          <span class="inp-pre">🔍</span>
+          <input class="inp" id="yti" type="text" placeholder="Search karo ya YouTube URL paste karo…" onkeydown="if(event.key==='Enter')ytGo()">
+        </div>
+        <button class="btn-go" onclick="ytGo()">Search →</button>
+      </div>
+      <div class="qrow">
+        <span class="qlbl">Quality:</span>
+        <div class="qchip on" onclick="setQ('best',this)">Best</div>
+        <div class="qchip" onclick="setQ('1080',this)">1080p</div>
+        <div class="qchip" onclick="setQ('720',this)">720p</div>
+        <div class="qchip" onclick="setQ('480',this)">480p</div>
+      </div>
+    </div>
+    <div class="errbox" id="yterr"></div>
+    <div class="ipanel" id="infop">
+      <div class="ithumb"><img id="iimg" src="" alt=""></div>
+      <div class="ibody">
+        <div class="ititle" id="ititl"></div>
+        <div class="imeta">
+          <span>📺 <span id="ich"></span></span>
+          <span>👁 <span id="ivw"></span></span>
+          <span>⏱ <span id="idur"></span></span>
+          <span>👍 <span id="ilk"></span></span>
+        </div>
+        <div class="dlgrid">
+          <button class="dlbtn mp4" onclick="dlNow('video')">⬇ Download MP4</button>
+          <button class="dlbtn mp3" onclick="dlNow('audio')">🎵 Download MP3</button>
+        </div>
+      </div>
+    </div>
+    <div class="st on" id="ytem"><div class="st-icon">▶</div><div class="st-txt">Search karo ya YouTube URL paste karo</div><div class="st-sub">URL paste karne pe direct download milega</div></div>
+    <div class="st" id="ytld"><div class="spin"></div><div class="st-txt" id="ldtxt">Loading…</div><div class="st-sub">yt-dlp se process ho raha hai</div></div>
+    <div class="res-lbl" id="reslbl"></div>
+    <div class="grid" id="resgrid"></div>
+  </div>
+
+  <!-- INSTAGRAM -->
+  <div id="pig" style="display:none">
+    <div class="card">
+      <div class="row">
+        <div class="inp-wrap">
+          <span class="inp-pre">📸</span>
+          <input class="inp" id="igi" type="text" placeholder="Instagram Reel / Post URL paste karo…" onkeydown="if(event.key==='Enter')igGo()">
+        </div>
+        <button class="btn-go" onclick="igGo()">Download →</button>
+      </div>
+    </div>
+    <div class="errbox" id="igerr"></div>
+    <div class="st on" id="igem"><div class="st-icon">📸</div><div class="st-txt">Instagram URL paste karo</div><div class="st-sub">Reels, Posts, IGTV support karta hai</div></div>
+    <div class="st" id="igld"><div class="spin"></div><div class="st-txt">Instagram media detect ho raha hai…</div></div>
+    <div class="igcard" id="igc">
+      <div class="igh">
+        <div class="igav">📸</div>
+        <div><div style="font-size:15px;font-weight:600;">Instagram Media</div><div style="font-size:12px;color:var(--text3);">Ready to download</div></div>
+      </div>
+      <div class="igb">
+        <button class="igdlbtn" onclick="igDl()">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:22px">🎬</span>
+            <div>
+              <div style="font-size:14px;font-weight:500;color:var(--text);text-align:left;">Download Video — MP4</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px;">Best available quality · Real file</div>
+            </div>
+          </div>
+          <span class="badge-hd">HD</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="feats">
+    <div class="feat"><span class="fi">⚡</span><div class="ft">Real yt-dlp Downloads</div><div class="fd">Actual files download hote hain. Railway pe hosted backend.</div></div>
+    <div class="feat"><span class="fi">🎵</span><div class="ft">MP3 Extraction</div><div class="fd">ffmpeg se 192kbps MP3 automatic convert hota hai.</div></div>
+    <div class="feat"><span class="fi">🌟</span><div class="ft">4K Quality</div><div class="fd">480p se lekar 4K tak — jo available ho woh lo.</div></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="ttop">
+    <div class="ttitle"><div class="spin-sm" id="tspin"></div><span id="ttxt">Downloading…</span></div>
+    <button class="tx" onclick="closeT()">✕</button>
+  </div>
+  <div class="tfile" id="tfile"></div>
+  <div class="pbar"><div class="pfill" id="pfill"></div></div>
+  <div class="tfoot"><span id="tpct">0%</span><span id="teta"></span></div>
+</div>
+
+<!-- MODAL -->
+<div class="mbg" id="mbg">
+  <div class="modal">
+    <h3>⚙ Railway Backend URL</h3>
+    <p>Railway deploy ke baad jo URL milega woh yahan daalo.<br>
+    Example: <code style="color:var(--accent3);font-size:12px;">https://mediavault-production.up.railway.app</code><br><br>
+    <strong style="color:var(--text);">Local testing ke liye:</strong> <code style="color:var(--accent3);font-size:12px;">http://localhost:8000</code></p>
+    <input class="minp" id="minp" type="text" placeholder="https://your-app.up.railway.app">
+    <div class="mbtns">
+      <button class="bsec" onclick="closeM()">Cancel</button>
+      <button class="btn-go" style="padding:10px 20px;" onclick="saveAPI()">Save & Test</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let API = localStorage.getItem("mv_api") || "http://localhost:8000";
+let curURL = "", igURL = "", selQ = "best";
+
+// INIT
+updateDisp();
+checkAPI();
+
+function updateDisp() {
+  document.getElementById("api-url").textContent = API;
+  document.getElementById("minp").value = API;
+}
+
+async function checkAPI() {
+  const dot = document.getElementById("api-dot");
+  const st = document.getElementById("api-st");
+  dot.className = "api-indicator checking";
+  st.textContent = "Backend check ho raha hai…";
+  try {
+    const r = await fetch(API+"/health", {signal:AbortSignal.timeout(6000)});
+    if (r.ok) {
+      dot.className = "api-indicator";
+      st.textContent = "Backend Online ✓ — Ready to download";
+    } else throw 0;
+  } catch {
+    dot.className = "api-indicator off";
+    st.textContent = "Backend Offline — Upar Railway URL set karo";
+  }
+}
+
+function openM() { document.getElementById("mbg").classList.add("on"); document.getElementById("minp").value = API; }
+function closeM() { document.getElementById("mbg").classList.remove("on"); }
+async function saveAPI() {
+  const v = document.getElementById("minp").value.trim().replace(/\/$/,"");
+  if (!v) return;
+  API = v;
+  localStorage.setItem("mv_api", API);
+  updateDisp();
+  closeM();
+  await checkAPI();
+}
+
+function swTab(t) {
+  ["yt","ig"].forEach(x => {
+    document.getElementById("p"+x).style.display = x===t?"":"none";
+    document.getElementById("tab-"+x).classList.toggle("active",x===t);
+  });
+}
+
+function setQ(q, el) {
+  selQ = q;
+  document.querySelectorAll(".qchip").forEach(c=>c.classList.remove("on"));
+  el.classList.add("on");
+}
+
+function isYT(s) { return s.includes("youtube.com/")||s.includes("youtu.be/"); }
+
+async function ytGo() {
+  const v = document.getElementById("yti").value.trim();
+  if (!v) return;
+  hideYT();
+  setErr("yterr","");
+  if (isYT(v)) { curURL=v; await fetchInfo(v); }
+  else await searchYT(v);
+}
+
+async function fetchInfo(url) {
+  showLd("ytld","Video info fetch ho raha hai…");
+  try {
+    const r = await fetch(`${API}/api/info?url=${encodeURIComponent(url)}`);
+    if (!r.ok) throw new Error((await r.json()).detail||"Failed");
+    const d = await r.json();
+    curURL = `https://www.youtube.com/watch?v=${d.id}`;
+    document.getElementById("iimg").src = d.thumbnail;
+    document.getElementById("ititl").textContent = d.title;
+    document.getElementById("ich").textContent = d.channel||"—";
+    document.getElementById("ivw").textContent = d.views+" views";
+    document.getElementById("idur").textContent = d.duration;
+    document.getElementById("ilk").textContent = d.likes+" likes";
+    document.getElementById("infop").classList.add("on");
+  } catch(e) {
+    setErr("yterr","❌ "+e.message);
+    document.getElementById("ytem").classList.add("on");
+  } finally { document.getElementById("ytld").classList.remove("on"); }
+}
+
+async function searchYT(q) {
+  showLd("ytld","YouTube search ho raha hai…");
+  try {
+    const r = await fetch(`${API}/api/search`, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query:q,max_results:8})});
+    if (!r.ok) throw new Error((await r.json()).detail||"Search failed");
+    const d = await r.json();
+    renderCards(d.results);
+  } catch(e) {
+    setErr("yterr","❌ "+e.message);
+    document.getElementById("ytem").classList.add("on");
+  } finally { document.getElementById("ytld").classList.remove("on"); }
+}
+
+function renderCards(vids) {
+  const g = document.getElementById("resgrid"), l = document.getElementById("reslbl");
+  g.innerHTML="";
+  if (!vids.length) { document.getElementById("ytem").classList.add("on"); return; }
+  l.style.display=""; l.textContent=`— ${vids.length} results`;
+  vids.forEach((v,i)=>{
+    const c=document.createElement("div"); c.className="vcard"; c.style.animationDelay=(i*0.06)+"s";
+    c.innerHTML=`<div class="tw"><img src="${v.thumbnail}" alt="" loading="lazy"><div class="tov"><span class="dbadge">${v.duration}</span></div><div class="pb">▶</div></div>
+    <div class="cbody"><div class="ctitle">${v.title}</div><div class="cmeta"><span>📺 ${v.channel||"—"}</span><span>${v.views}</span></div>
+    <div class="cacts"><button class="bact mp4" onclick="dlCard('${v.url}','video')">⬇ MP4</button><button class="bact mp3" onclick="dlCard('${v.url}','audio')">🎵 MP3</button></div></div>`;
+    g.appendChild(c);
+  });
+}
+
+async function dlCard(url,t) { curURL=url; await dlNow(t); }
+
+async function dlNow(type) {
+  if (!curURL) return;
+  const ep = type==="video"?"/api/download/video":"/api/download/audio";
+  await doDL(ep, {url:curURL,format:type,quality:selQ}, type==="video"?"video.mp4":"audio.mp3");
+}
+
+function igGo() {
+  const url = document.getElementById("igi").value.trim();
+  if (!url) return;
+  igURL=url;
+  document.getElementById("igem").classList.remove("on");
+  document.getElementById("igc").classList.remove("on");
+  document.getElementById("igld").classList.add("on");
+  setErr("igerr","");
+  setTimeout(()=>{ document.getElementById("igld").classList.remove("on"); document.getElementById("igc").classList.add("on"); },700);
+}
+
+async function igDl() {
+  if (!igURL) return;
+  await doDL("/api/download/instagram",{url:igURL,format:"mp4"},"reel.mp4");
+}
+
+async function doDL(ep, body, fname) {
+  showToast(fname,"Server se connect ho raha hai…");
+  fillP(15);
+  try {
+    const r = await fetch(API+ep, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    if (!r.ok) { const e=await r.json().catch(()=>({detail:"Server error"})); throw new Error(e.detail||"Download failed"); }
+    fillP(75); setTmsg("File save ho rahi hai…");
+    const blob = await r.blob();
+    fillP(100);
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=fname; a.click(); URL.revokeObjectURL(a.href);
+    doneT();
+  } catch(e) { failT("❌ "+e.message); }
+}
+
+function showToast(f,m) {
+  document.getElementById("tfile").textContent=f;
+  document.getElementById("ttxt").textContent=m;
+  document.getElementById("tspin").style.display="";
+  const pf=document.getElementById("pfill"); pf.style.cssText="width:5%;background:linear-gradient(90deg,var(--accent),var(--accent2))";
+  document.getElementById("tpct").textContent="5%";
+  document.getElementById("toast").classList.add("on");
+}
+function fillP(p) { document.getElementById("pfill").style.width=p+"%"; document.getElementById("tpct").textContent=p+"%"; }
+function setTmsg(m) { document.getElementById("ttxt").textContent=m; }
+function doneT() {
+  document.getElementById("ttxt").textContent="Download Complete! ✓";
+  document.getElementById("tspin").style.display="none";
+  document.getElementById("pfill").style.cssText="width:100%;background:var(--green)";
+  document.getElementById("tpct").textContent="Done";
+  setTimeout(closeT,3500);
+}
+function failT(m) {
+  document.getElementById("ttxt").textContent=m;
+  document.getElementById("tspin").style.display="none";
+  document.getElementById("pfill").style.cssText="width:100%;background:var(--red)";
+}
+function closeT() { document.getElementById("toast").classList.remove("on"); }
+
+function hideYT() {
+  document.getElementById("ytem").classList.remove("on");
+  document.getElementById("ytld").classList.remove("on");
+  document.getElementById("infop").classList.remove("on");
+  document.getElementById("reslbl").style.display="none";
+  document.getElementById("resgrid").innerHTML="";
+}
+function showLd(id,m) { document.getElementById(id).classList.add("on"); const e=document.getElementById("ldtxt"); if(e) e.textContent=m; }
+function setErr(id,m) { const e=document.getElementById(id); e.textContent=m; e.classList.toggle("on",!!m); }
+</script>
+</body>
+</html>
