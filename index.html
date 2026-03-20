@@ -156,7 +156,8 @@
     <div class="card">
       <div class="row">
         <div class="inp-wrap">
-          <input class="inp" id="yti" type="text" placeholder="Paste YouTube Link or Search..." onkeydown="if(event.key==='Enter')ytGo()" oninput="handleYTInput()">
+          <input class="inp" id="yti" type="text" placeholder="Paste YouTube Link or Search..." onkeydown="if(event.key==='Enter')ytGo()" oninput="handleYTInput()" onclick="this.select()">
+          <button onclick="clearSearch('yti')" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 5px; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'">✖</button>
         </div>
         <button class="btn-primary" onclick="ytGo()">Search</button>
       </div>
@@ -202,7 +203,8 @@
     <div class="card">
       <div class="row">
         <div class="inp-wrap">
-          <input class="inp" id="igi" type="text" placeholder="Paste Instagram Reel URL..." onkeydown="if(event.key==='Enter')igDl()">
+          <input class="inp" id="igi" type="text" placeholder="Paste Instagram Reel URL..." onkeydown="if(event.key==='Enter')igDl()" onclick="this.select()">
+          <button onclick="clearSearch('igi')" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 5px; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'">✖</button>
         </div>
         <button class="btn-primary" onclick="igDl()">Download</button>
       </div>
