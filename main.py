@@ -48,12 +48,16 @@ async def search_youtube(req: SearchRequest):
         "extract_flat": True,
         "default_search": f"ytsearch{req.max_results}",
         "skip_download": True,
+        "ignoreerrors": True, # Backend crash roknne ke liye
         # YAHAN KOI FORMAT NAHI HAI - EK DUM CLEAN
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             result = ydl.extract_info(f"ytsearch{req.max_results}:{req.query}", download=False)
+
+        if not result or "entries" not in result:
+             return {"error": "No results found or search blocked."}
 
         videos = []
         for entry in result.get("entries", []):
@@ -74,10 +78,10 @@ async def search_youtube(req: SearchRequest):
         return {"results": videos, "query": req.query}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"error": str(e), "message": "Search failed due to backend error"}
 
 
-# ── VIDEO INFO ────────────────────────────────────────
+# ── VIDEO INFO (BRUTAL FIX APPLIED) ────────────────────────────────────────
 @app.get("/api/info")
 async def get_video_info(url: str):
     """Video ka full info fetch karo (stats, formats)"""
@@ -86,19 +90,26 @@ async def get_video_info(url: str):
         "quiet": True,
         "no_warnings": True,
         "skip_download": True,
-        # YAHAN BHI KOI FORMAT NAHI HAI - BUG FIXED!
+        "ignoreerrors": True,  # 🛡️ Backend crash roknne ke liye
+        "format": "bv*+ba/b",  # 🔥 THE ULTIMATE FALLBACK
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
+            
+        if not info:
+            return {"error": "Failed to extract info. Video might be restricted, age-gated, or unavailable."}
 
         formats = []
         seen = set()
         for f in info.get("formats", []):
             height = f.get("height")
             ext = f.get("ext")
-            if height and ext == "mp4" and height not in seen:
+            vcodec = f.get("vcodec")
+            
+            # Filter for readable formats
+            if height and ext == "mp4" and vcodec != 'none' and height not in seen:
                 seen.add(height)
                 formats.append({
                     "format_id": f["format_id"],
@@ -106,6 +117,15 @@ async def get_video_info(url: str):
                     "ext": ext,
                     "filesize": f.get("filesize") or f.get("filesize_approx"),
                 })
+        
+        # Auto-detect format fallback (Pro Move - For Music Tracks)
+        if not formats:
+            formats.append({
+                "format_id": "bestaudio",
+                "quality": "Audio Only / Auto",
+                "ext": "mp4",
+                "filesize": None
+            })
 
         return {
             "id": info.get("id"),
@@ -118,26 +138,26 @@ async def get_video_info(url: str):
             "views": format_views(info.get("view_count", 0)),
             "likes": format_views(info.get("like_count", 0)),
             "upload_date": info.get("upload_date"),
-            "formats": sorted(formats, key=lambda x: int(x["quality"].replace("p","")), reverse=True),
+            "formats": sorted(formats, key=lambda x: int(str(x["quality"]).replace("p","").replace("Audio Only / Auto", "0")), reverse=True),
         }
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        return {"error": str(e), "message": "Backend yt-dlp extraction failed"}
 
 
-# ── DOWNLOAD VIDEO (MP4) ──────────────────────────────
+# ── DOWNLOAD VIDEO (BRUTAL FIX APPLIED) ──────────────────────────────
 @app.post("/api/download/video")
 async def download_video(req: DownloadRequest):
     """Video download karo aur audio ke sath merge karo"""
     file_id = str(uuid.uuid4())
     output_template = DOWNLOAD_DIR / f"{file_id}.%(ext)s"
 
-  
-    if req.quality == "best":
-        format_str = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
+    # 🔥 Dynamic Format Detection with Fallback
+    if req.quality == "best" or req.quality == "Audio Only / Auto":
+        format_str = "bv*+ba/b"
     else:
-        # Agar exact height na mile, toh usse chota best utha lega, aur crash nahi hoga
-        format_str = f"bestvideo[height<={req.quality}][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<={req.quality}]+bestaudio/best[ext=mp4]/best"
+        # Agar exact height na mile toh safely best video + best audio uthayega
+        format_str = f"bestvideo[height<={req.quality}][ext=mp4]+bestaudio[ext=m4a]/bv*+ba/b"
 
     ydl_opts = {
         "cookiefile": "cookies.txt",  
@@ -158,7 +178,7 @@ async def download_video(req: DownloadRequest):
             if mkv_path.exists():
                 final_path = mkv_path
             else:
-                raise HTTPException(status_code=500, detail="Video conversion failed")
+                return {"error": "Video conversion failed at backend"}
 
         return FileResponse(
             path=str(final_path),
@@ -167,7 +187,7 @@ async def download_video(req: DownloadRequest):
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"error": str(e), "message": "Download failed due to yt-dlp error"}
 
 
 # ── DOWNLOAD AUDIO (MP3 / M4A) ──────────────────────────────
@@ -203,7 +223,7 @@ async def download_audio(req: DownloadRequest):
 
         final_path = DOWNLOAD_DIR / f"{file_id}.{audio_ext}"
         if not final_path.exists():
-            raise HTTPException(status_code=500, detail=f"{audio_ext.upper()} conversion failed")
+             return {"error": f"{audio_ext.upper()} conversion failed at backend"}
 
         return FileResponse(
             path=str(final_path),
@@ -212,7 +232,7 @@ async def download_audio(req: DownloadRequest):
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+         return {"error": str(e), "message": "Audio download failed due to yt-dlp error"}
 
 
 # ── INSTAGRAM DOWNLOAD ────────────────────────────────
@@ -223,7 +243,7 @@ async def download_instagram(req: DownloadRequest):
     output_path = DOWNLOAD_DIR / f"{file_id}.mp4"
 
     ydl_opts = {
-        "format": "best[ext=mp4]/best",
+        "format": "bv*+ba/b", # 🔥 Insta mein bhi fallback add kar diya
         "outtmpl": str(output_path),
         "quiet": True,
         "no_warnings": True,
@@ -234,7 +254,7 @@ async def download_instagram(req: DownloadRequest):
         await loop.run_in_executor(None, lambda: _do_download(req.url, ydl_opts))
 
         if not output_path.exists():
-            raise HTTPException(status_code=500, detail="Instagram download failed")
+            return {"error": "Instagram download failed at backend"}
 
         return FileResponse(
             path=str(output_path),
@@ -243,7 +263,7 @@ async def download_instagram(req: DownloadRequest):
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"error": str(e), "message": "Instagram download failed due to yt-dlp error"}
 
 
 # ── HELPERS ────────────────────────────────────────────
