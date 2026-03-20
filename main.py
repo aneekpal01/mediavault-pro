@@ -48,7 +48,7 @@ async def search_youtube(req: SearchRequest):
         "extract_flat": True,
         "default_search": f"ytsearch{req.max_results}",
         "skip_download": True,
-        "format": "best",  # 🛡️ FIX: Taaki music tracks aur alag videos pe crash na ho
+        # YAHAN KOI FORMAT NAHI HAI - EK DUM CLEAN
     }
 
     try:
@@ -86,7 +86,7 @@ async def get_video_info(url: str):
         "quiet": True,
         "no_warnings": True,
         "skip_download": True,
-        "format": "best",  # 🛡️ FIX: Music videos/Shorts ko easily bypass karne ke liye
+        # YAHAN BHI KOI FORMAT NAHI HAI - BUG FIXED!
     }
 
     try:
@@ -154,7 +154,6 @@ async def download_video(req: DownloadRequest):
 
         final_path = DOWNLOAD_DIR / f"{file_id}.mp4"
         if not final_path.exists():
-            # yt-dlp sometimes saves as .mkv if merge fails, check for it
             mkv_path = DOWNLOAD_DIR / f"{file_id}.mkv"
             if mkv_path.exists():
                 final_path = mkv_path
