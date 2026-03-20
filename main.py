@@ -25,6 +25,41 @@ app.add_middleware(
 DOWNLOAD_DIR = Path("downloads")
 DOWNLOAD_DIR.mkdir(exist_ok=True)
 
+# ── HELPERS ────────────────────────────────────────────
+def get_base_ydl_opts():
+    """Cookie aur basic safety har request mein inject karne ke liye"""
+    opts = {
+        "quiet": True,
+        "no_warnings": True,
+    }
+    # 🔥 FIX 4: Safety Check for Cookies
+    if os.path.exists("cookies.txt"):
+        opts["cookiefile"] = "cookies.txt"
+    return opts
+
+def _do_download(url: str, opts: dict):
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        ydl.download([url])
+
+def format_duration(seconds: int) -> str:
+    if not seconds:
+        return "0:00"
+    h = seconds // 3600
+    m = (seconds % 3600) // 60
+    s = seconds % 60
+    if h:
+        return f"{h}:{m:02d}:{s:02d}"
+    return f"{m}:{s:02d}"
+
+def format_views(n: int) -> str:
+    if not n:
+        return "0"
+    if n >= 1_000_000:
+        return f"{n/1_000_000:.1f}M"
+    if n >= 1_000:
+        return f"{n/1_000:.1f}K"
+    return str(n)
+
 
 # ── MODELS ────────────────────────────────────────────
 class SearchRequest(BaseModel):
@@ -40,17 +75,13 @@ class DownloadRequest(BaseModel):
 # ── SEARCH YOUTUBE ────────────────────────────────────
 @app.post("/api/search")
 async def search_youtube(req: SearchRequest):
-    """YouTube videos search karo"""
-    ydl_opts = {
-        "cookiefile": "cookies.txt",
-        "quiet": True,
-        "no_warnings": True,
+    ydl_opts = get_base_ydl_opts()
+    ydl_opts.update({
         "extract_flat": True,
         "default_search": f"ytsearch{req.max_results}",
         "skip_download": True,
-        "ignoreerrors": True, # Backend crash roknne ke liye
-        # YAHAN KOI FORMAT NAHI HAI - EK DUM CLEAN
-    }
+        "ignoreerrors": True,
+    })
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -81,18 +112,15 @@ async def search_youtube(req: SearchRequest):
         return {"error": str(e), "message": "Search failed due to backend error"}
 
 
-# ── VIDEO INFO (BRUTAL FIX APPLIED) ────────────────────────────────────────
+# ── VIDEO INFO ────────────────────────────────────────
 @app.get("/api/info")
 async def get_video_info(url: str):
-    """Video ka full info fetch karo (stats, formats)"""
-    ydl_opts = {
-        "cookiefile": "cookies.txt",
-        "quiet": True,
-        "no_warnings": True,
+    ydl_opts = get_base_ydl_opts()
+    ydl_opts.update({
         "skip_download": True,
-        "ignoreerrors": True,  # 🛡️ Backend crash roknne ke liye
-        "format": "bv*+ba/b",  # 🔥 THE ULTIMATE FALLBACK
-    }
+        "ignoreerrors": True,  
+        "format": "bv*+ba/b",  
+    })
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -108,7 +136,6 @@ async def get_video_info(url: str):
             ext = f.get("ext")
             vcodec = f.get("vcodec")
             
-            # Filter for readable formats
             if height and ext == "mp4" and vcodec != 'none' and height not in seen:
                 seen.add(height)
                 formats.append({
@@ -118,7 +145,6 @@ async def get_video_info(url: str):
                     "filesize": f.get("filesize") or f.get("filesize_approx"),
                 })
         
-        # Auto-detect format fallback (Pro Move - For Music Tracks)
         if not formats:
             formats.append({
                 "format_id": "bestaudio",
@@ -145,28 +171,29 @@ async def get_video_info(url: str):
         return {"error": str(e), "message": "Backend yt-dlp extraction failed"}
 
 
-# ── DOWNLOAD VIDEO (BRUTAL FIX APPLIED) ──────────────────────────────
+# ── DOWNLOAD VIDEO (THE REAL FIX APPLIED) ──────────────────────────────
 @app.post("/api/download/video")
 async def download_video(req: DownloadRequest):
-    """Video download karo aur audio ke sath merge karo"""
     file_id = str(uuid.uuid4())
     output_template = DOWNLOAD_DIR / f"{file_id}.%(ext)s"
 
-    # 🔥 Dynamic Format Detection with Fallback
-    if req.quality == "best" or req.quality == "Audio Only / Auto":
+    # 🔥 FIX 1 & 2: Safe Parsing and No Extension Restriction on Download
+    if req.quality in ["best", "Audio Only / Auto"]:
         format_str = "bv*+ba/b"
     else:
-        # Agar exact height na mile toh safely best video + best audio uthayega
-        format_str = f"bestvideo[height<={req.quality}][ext=mp4]+bestaudio[ext=m4a]/bv*+ba/b"
+        try:
+            # Agar frontend "720p" bhejta hai, toh "p" hatakar safe int banayega
+            q = int(str(req.quality).replace("p", ""))
+            format_str = f"bv*[height<={q}]+ba/bv*+ba/b"
+        except:
+            format_str = "bv*+ba/b"
 
-    ydl_opts = {
-        "cookiefile": "cookies.txt",  
+    ydl_opts = get_base_ydl_opts()
+    ydl_opts.update({
         "format": format_str,
         "outtmpl": str(output_template),
-        "quiet": True,
-        "no_warnings": True,
-        "merge_output_format": "mp4", 
-    }
+        "merge_output_format": "mp4", # Yeh final output ko MP4 banayega, chahe webm kyun na download ho
+    })
 
     try:
         loop = asyncio.get_event_loop()
@@ -190,21 +217,17 @@ async def download_video(req: DownloadRequest):
         return {"error": str(e), "message": "Download failed due to yt-dlp error"}
 
 
-# ── DOWNLOAD AUDIO (MP3 / M4A) ──────────────────────────────
+# ── DOWNLOAD AUDIO ──────────────────────────────
 @app.post("/api/download/audio")
 async def download_audio(req: DownloadRequest):
-    """Audio download karo MP3/M4A format mein"""
     file_id = str(uuid.uuid4())
     output_template = DOWNLOAD_DIR / f"{file_id}.%(ext)s"
-
     audio_ext = "m4a" if req.quality == "m4a" else "mp3"
 
-    ydl_opts = {
-        "cookiefile": "cookies.txt",
+    ydl_opts = get_base_ydl_opts()
+    ydl_opts.update({
         "format": "bestaudio/best",
         "outtmpl": str(output_template),
-        "quiet": True,
-        "no_warnings": True,
         "writethumbnail": True,  
         "postprocessors": [
             {
@@ -215,7 +238,7 @@ async def download_audio(req: DownloadRequest):
             {"key": "FFmpegMetadata", "add_metadata": True},
             {"key": "EmbedThumbnail", "already_have_thumbnail": False},
         ],
-    }
+    })
 
     try:
         loop = asyncio.get_event_loop()
@@ -238,16 +261,14 @@ async def download_audio(req: DownloadRequest):
 # ── INSTAGRAM DOWNLOAD ────────────────────────────────
 @app.post("/api/download/instagram")
 async def download_instagram(req: DownloadRequest):
-    """Instagram Reel / Post download karo"""
     file_id = str(uuid.uuid4())
     output_path = DOWNLOAD_DIR / f"{file_id}.mp4"
 
-    ydl_opts = {
-        "format": "bv*+ba/b", # 🔥 Insta mein bhi fallback add kar diya
+    ydl_opts = get_base_ydl_opts()
+    ydl_opts.update({
+        "format": "bv*+ba/b",
         "outtmpl": str(output_path),
-        "quiet": True,
-        "no_warnings": True,
-    }
+    })
 
     try:
         loop = asyncio.get_event_loop()
@@ -264,31 +285,6 @@ async def download_instagram(req: DownloadRequest):
 
     except Exception as e:
         return {"error": str(e), "message": "Instagram download failed due to yt-dlp error"}
-
-
-# ── HELPERS ────────────────────────────────────────────
-def _do_download(url: str, opts: dict):
-    with yt_dlp.YoutubeDL(opts) as ydl:
-        ydl.download([url])
-
-def format_duration(seconds: int) -> str:
-    if not seconds:
-        return "0:00"
-    h = seconds // 3600
-    m = (seconds % 3600) // 60
-    s = seconds % 60
-    if h:
-        return f"{h}:{m:02d}:{s:02d}"
-    return f"{m}:{s:02d}"
-
-def format_views(n: int) -> str:
-    if not n:
-        return "0"
-    if n >= 1_000_000:
-        return f"{n/1_000_000:.1f}M"
-    if n >= 1_000:
-        return f"{n/1_000:.1f}K"
-    return str(n)
 
 
 # ── HEALTH CHECK ──────────────────────────────────────
