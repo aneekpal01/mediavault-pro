@@ -30,6 +30,12 @@ def get_base_ydl_opts():
     opts = {
         "quiet": True,
         "no_warnings": True,
+        # 🔥 THE MAGIC BULLET: YouTube ko lagega yeh request Android phone se aa rahi hai, bot se nahi!
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "ios"]
+            }
+        }
     }
     if os.path.exists("cookies.txt"):
         opts["cookiefile"] = "cookies.txt"
