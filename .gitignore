@@ -1,0 +1,10 @@
+backend/downloads/
+downloads/
+__pycache__/
+*.py[cod]
+.env
+venv/
+.venv/
+.DS_Store
+Thumbs.db
+*.exe
