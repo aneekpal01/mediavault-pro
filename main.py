@@ -30,13 +30,22 @@ def get_base_ydl_opts():
     opts = {
         "quiet": True,
         "no_warnings": True,
-        # 🔥 THE MAGIC BULLET: YouTube ko lagega yeh request Android phone se aa rahi hai, bot se nahi!
+        # 🔥 THE NUCLEAR OPTION: Sabse naya bypass strategy
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "ios"]
+                # Sirf 'tv' aur 'mweb' use karo, yeh 400 error bypass karne mein best hain
+                "player_client": ["tv", "mweb"],
+                "player_skip": ["webpage", "configs"],
             }
+        },
+        # HTTP Headers ko manually set karo taaki bot na lage
+        "http_headers": {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9",
         }
     }
+    # Cookies agar ho toh use karega, nahi toh bina cookie ke try karega (Best approach)
     if os.path.exists("cookies.txt"):
         opts["cookiefile"] = "cookies.txt"
     return opts
